@@ -1,9 +1,7 @@
 import numpy as np
 import random
 import math
-from copy import deepcopy
 from random import sample
-import sys
 from prettytable import PrettyTable
 
 
@@ -23,25 +21,6 @@ class Task:
         self.importance = importance  # under different mode the value of importance may be varied
         self.criticality = criticality  # task criticality definition
         self.context_aware = context_aware  # true 1, false 0
-
-
-def period_Generator(stream_number, generated_transmission_times):
-    utilizations = uunifast(stream_number)
-    # for j in range(len(utilizations)):
-    #     print(utilizations[j])
-
-    generated_period = []
-    for j in range(stream_number):
-        generated_period.append(math.ceil(generated_transmission_times[j] / utilizations[j]))
-
-    # test the total utilization will not exist 1 after ceiling operation
-    uti = []
-    for i in range(stream_number):
-        uti.append(generated_transmission_times[i] / generated_period[i])
-    b = sum(uti)
-    print(b)
-
-    return generated_period
 
 
 def execution_time_Generator(task_number, period, target_Uti):
@@ -72,7 +51,6 @@ def uunifast(stream_number, target_Uti):
 
 
 def task_definition(task_number, period, execution_time, criticality_factor, criticality_proportion):
-
     tasks = []
     HI_task_num = math.floor(task_number * criticality_proportion)
     index_init = range(task_number)
@@ -94,7 +72,8 @@ def task_definition(task_number, period, execution_time, criticality_factor, cri
         else:
             context_aware = 0
 
-        release_time = random.randint(0, hyperperiod_calculation(period))
+        # release_time = random.randint(0, hyperperiod_calculation(period))
+        release_time = 0
 
         task = Task(i, 0, release_time, period[i], period[i], execution_time[i], execution_time_HI, i, i,
                     criticality, context_aware)
@@ -111,6 +90,18 @@ def hyperperiod_calculation(period):
     return hyperperiod
 
 
+def table_print(tasks):
+    table = PrettyTable(
+        ['task_id', 'job_id', 'release_time', 'deadline', 'period', 'execution_time_LO', 'execution_time_HI',
+         'priority',
+         'importance', 'criticality', 'context-aware:'])
+    for i in tasks:
+        table.add_row(
+            [i.task_id, i.job_id, i.release_time, i.deadline, i.period, i.execution_time_LO, i.execution_time_HI,
+             i.priority, i.importance, i.criticality, i.context_aware])
+    print(table)
+
+
 if __name__ == "__main__":
     print("Start Tasks Generation")
     print("--------------------------------")
@@ -119,25 +110,17 @@ if __name__ == "__main__":
     target_Uti = 0.5  # varied from 0.05 to 0.95
 
     period_set = [10, 50, 100, 200, 500, 1000]
-    idxs = np.random.randint(0, len(period_set), size=task_number)
-
     period = []
-    for i in idxs:
-        period.append(period_set[i])
+    for i in range(task_number):
+        period.append(random.choice(period_set))
     print("Generated Periods:", period)
 
-    k = 1
-    execution_time = []
-    actual_uti = 0
-    while k:
-        execution_time = execution_time_Generator(task_number, period, target_Uti)
+    execution_time = execution_time_Generator(task_number, period, target_Uti)
 
-        uti = []
-        for i in range(task_number):
-            uti.append(execution_time[i] / period[i])
-        actual_uti = sum(uti)
-        if actual_uti < 0.5:
-            k = 0
+    uti = []
+    for i in range(task_number):
+        uti.append(execution_time[i] / period[i])
+    actual_uti = sum(uti)
 
     print("Generated Execution Time:", execution_time)
     print("Actual Utilization:", actual_uti)
@@ -151,11 +134,25 @@ if __name__ == "__main__":
     # varied from 0.05 to 0.95
 
     task_set = task_definition(task_number, period, execution_time, criticality_factor, criticality_proportion)
-    table = PrettyTable(
-        ['task_id', 'job_id', 'release_time', 'deadline', 'period', 'execution_time_LO', 'execution_time_HI', 'priority',
-         'importance', 'criticality', 'context-aware:'])
+    table_print(task_set)
+
+    LO_tasks = []
+    HI_tasks = []
     for i in task_set:
-        table.add_row(
-            [i.task_id, i.job_id, i.release_time, i.deadline, i.period, i.execution_time_LO, i.execution_time_HI,
-             i.priority, i.importance, i.criticality, i.context_aware])
-    print(table)
+        if i.criticality == "LO":
+            LO_tasks.append(i)
+        else:
+            HI_tasks.append(i)
+
+    # table_print(LO_tasks)
+    # table_print(HI_tasks)
+
+    # --- tasks dependency generator for LO_tasks--- #
+
+    LO_app1 = sample(LO_tasks, math.ceil(len(LO_tasks)/2))
+    for i in LO_app1:
+        LO_tasks.remove(i)
+    LO_app2 = LO_tasks
+    table_print(LO_app1)
+    table_print(LO_app2)
+

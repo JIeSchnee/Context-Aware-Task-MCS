@@ -1,1 +1,1 @@
-# JIeSchnee-Context-Aware-Mixed-Criticality-System
+# Context-Aware-Mixed-Criticality-System

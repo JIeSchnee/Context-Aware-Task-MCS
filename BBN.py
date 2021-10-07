@@ -7,7 +7,7 @@ from pgmpy.inference import CausalInference
 from pgmpy.factors.discrete import JointProbabilityDistribution
 
 # ----------------------------------------------------------------------------------------------------------------- #
-#   Note here: If we only set tau2 as 'wrong' without graph reset,  the behavior ia regarded as the observation and #
+#   Note here: If we only set tau2 as 'wrong' without graph reset,  the behavior is regarded as the observation and #
 #   and the state of tau1 will be automatically set as 'wrong' (MAP). Therefore, the marginal distribution of tau7  #
 #   will also be modified and that is unexpected.                                                                   #
 # ----------------------------------------------------------------------------------------------------------------- #

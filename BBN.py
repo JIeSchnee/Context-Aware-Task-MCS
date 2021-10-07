@@ -33,18 +33,6 @@ from pgmpy.factors.discrete import JointProbabilityDistribution
 # print(model.get_cpds('D'))
 
 
-# ------------------ Test based on specified structure ----------------#
-
-
-# cpd_tau8 = TabularCPD(variable='tau8', variable_card=2,
-#                       values=[[0.8, 0.1],
-#                               [0.2, 0.9]],
-#                       evidence=['tau7'],
-#                       evidence_card=[2],
-#                       state_names={'tau8': ['correct', 'wrong'],
-#                                    'tau7': ['correct', 'wrong']})
-
-# tau is defined for the index searching
 
 def parameters_initialisation():
     print("----- Parameters initialisation ------")

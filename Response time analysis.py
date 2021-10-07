@@ -32,7 +32,7 @@ def table_print(tasks):
 
 
 def response_time_calculation_LO(task, task_set):
-    print("##########################################################")
+    # print("##########################################################")
     print("The analysed task:", task.task_id)
     print("the execution time of analysed task:", task.execution_time_LO)
     response_time = task.execution_time_LO
@@ -40,7 +40,7 @@ def response_time_calculation_LO(task, task_set):
     for i in task_set:
         if i.priority < task.priority:
             hp_tasks.append(i)
-    # print(" ----------------tasks with higher priority----------------")
+    print(" ----------------tasks with higher priority----------------")
     table_print(hp_tasks)
     rep = response_time
     print("start recursive")
@@ -101,11 +101,12 @@ def recursive_HI(response_time, hp_tasks, task, require, MC_time_point):
         else:
             temp1 += math.ceil(MC_time_point / j.period) * j.execution_time_LO + math.ceil((response_time - MC_time_point) / j.period) * (j.execution_time_HI - j.execution_time_LO)
     temp = temp0 + temp1
-    print("temp2", temp)
+    print("temp", temp)
 
     response_time = execution_time + temp
 
     return response_time
+
 
 if __name__ == "__main__":
 
@@ -124,14 +125,17 @@ if __name__ == "__main__":
     Test_tasks.append(task4)
     # task5 = Task(5, 10, 10, 1, 3, 2, 1, "HI")
     # Test_tasks.append(task5)
+    print("---------Tasks in the system------------")
     table_print(Test_tasks)
 
     print("-------LO MODE response time analysis------")
-    # for i in Test_tasks:
-    #     print("-------------------------------------------")
-    #     response_time_LO = response_time_calculation_LO(i, Test_tasks)
+    for i in Test_tasks:
+        print("-------------------------------------------")
+        response_time_LO = response_time_calculation_LO(i, Test_tasks)
+        print("-------------------------------------")
+        print("convergent response time:", response_time_LO)
 
-    print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+    print("***********************************************", '\n')
     print("-------HI MODE response time analysis------")
     HI_task_set = []
     for i in Test_tasks:
@@ -143,10 +147,12 @@ if __name__ == "__main__":
     response_time_set = []
     MC_candidate = []
     for i in range(response_time_LO_task):
+        print("+++++++++++++++++++++++++++++++++++++")
         s = i
         print("tested mode change time point:", s)
         response_time_HI_task = response_time_calculation_HI(task1, Test_tasks, s)
-        print("re", response_time_HI_task)
+        print("-------------------------------------")
+        print("convergent response time:", response_time_HI_task)
         response_time_set.append(response_time_HI_task)
         MC_candidate.append(s)
 
@@ -154,4 +160,3 @@ if __name__ == "__main__":
     index = response_time_set.index(worst_case)
     print("index", index)
     print("The mode change time point:", MC_candidate[index])
-

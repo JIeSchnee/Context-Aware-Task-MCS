@@ -585,66 +585,7 @@ if __name__ == "__main__":
             if i.app_name == app:
                 Test_task_set = i.taskset
         print("The task set of corresponding app:", Test_task_set)
-        # model, Tasks = model_task_copy(model_original, tasks_name_index, HI_group)
-        # print(model.nodes)
-        # EU_local_set = []
-        # Dropped_task = []
-
-        # if Test_task_set:
-        #     # print(model.nodes)
-        #     # cpds = model.get_cpds()
-        #     # for cpd in cpds:
-        #     #     print(f'CPT of {cpd.variable}:')
-        #     #     print(cpd, '\n')
-        #
-        #     for i in Test_task_set:
-        #
-        #         print("=======================================================", '\n')
-        #         print("*****Current tested task****", i)
-        #
-        #         model, Tasks = model_task_copy(model_original, tasks_name_index, HI_group)
-        #         Appset = Appset_original
-        #         print(model.nodes)
-        #
-        #         dropped_task_set = []
-        #         dropped_task_set.append(i)
-        #         marginal_prob_set = Task_Dropping_Test(dropped_task_set, Tasks, model)
-        #
-        #         for k in Appset:
-        #             if k.app_name == app:
-        #                 Keynode = k.keynode
-        #                 print("The key node of current application:", Keynode)
-        #
-        #
-        #         for j in marginal_prob_set:
-        #             # print(j.variables)
-        #             # print(j)
-        #             if j.variables[0] == Keynode:
-        #                 marginal_prob_key = j
-        #         print("***** Marginal Distribution of Key node ****", '\n')
-        #         print(marginal_prob_key)
-        #
-        #         local_Expected_Utility = marginal_prob_key.values[0]
-        #         # TODO: the definition can be improved with the consideration of the safety-related elements.
-        #         EU_local_set.append(local_Expected_Utility)
-        #         Dropped_task.append(i)
-
-        # EU_local_set, Dropped_task = task_drop_test(Test_task_set, model, tasks_name_index, HI_group, Appset)
-        # print("---Task discarding decision---", '\n')
-        # task_Drop_ID = EU_local_set.index(max(EU_local_set))
-        # print("Task dropping start from: ", app, Dropped_task[task_Drop_ID], '\n')
-        #
-        # print("-----Network update and look for the next dropped task--- ")
-        # model, Tasks = model_task_copy(model_original, tasks_name_index, HI_group)
-        # Appset = Appset_original
-        # print(model.nodes)
-        # dropped_task_set = []
-        # dropped_task_set.append(Dropped_task[task_Drop_ID])
-        # marginal_prob_set = Task_Dropping_Test(dropped_task_set, Tasks, model)
-        # for i in dropped_task_set:
-        #     Tasks = remove_task(Tasks, i)
-        # for i in Tasks:
-        #     print(i.task)
+        
 
         temp = len(Test_task_set)
         while temp >= 1:

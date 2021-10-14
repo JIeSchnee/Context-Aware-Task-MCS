@@ -9,7 +9,16 @@ from pgmpy.factors.discrete import JointProbabilityDistribution
 import networkx as nx
 import random
 from random import choice
+import os, sys
 
+class HiddenPrints:
+    def __enter__(self):
+        self._original_stdout = sys.stdout
+        sys.stdout = open(os.devnull, 'w')
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        sys.stdout.close()
+        sys.stdout = self._original_stdout
 
 class Task:
     # TODO: the properties will be extended to include more information for the scheduling problem
@@ -619,15 +628,12 @@ if __name__ == "__main__":
         temp_order = []
         print("================== App based Task Round =======================", '\n')
         print("Start to determine the task dropping order of application:", app)
-        Appset = []
-        for h in Appset_backpack:
-            print("uuuuu", h.taskset)
-            Appset.append(h)
+        with HiddenPrints():
+            Appset = parameters_initialisation(dict)[2]
 
         for t in Appset:
-            print("TTTTT", t.taskset)
-            keynode.append(t.keynode)
             # print("TTTTT", t.taskset)
+            keynode.append(t.keynode)
 
         Test_task_set = []
         for t in Appset:

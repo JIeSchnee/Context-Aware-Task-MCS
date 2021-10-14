@@ -572,13 +572,14 @@ if __name__ == "__main__":
     network_edges, network_tasks, Appset, HI_group = parameters_initialisation(dict)
     values = value_generation(network_tasks)
     Tasks_original, model_original, Appset_original, HI_group = initialisation(network_edges, network_tasks, Appset, HI_group, values)
+
     Appset_backpack = []
     Appset = Appset_original
     keynode = []
     for t in Appset:
         keynode.append(t.keynode)
         Appset_backpack.append(t)
-        print("GGGGGGG", t.taskset)
+        # print("GGGGGGG", t.taskset)
 
     for j in Tasks_original:
         tasks_name_index.append(j.task)
@@ -608,25 +609,23 @@ if __name__ == "__main__":
     print("--------------------------------------------------------", '\n')
     print("--- Determine Task dropping order ---", '\n')
     print("--------------------------------------------------------", '\n')
-    Appset = []
+    # Appset = []
     model, Tasks = model_task_copy(model_original, tasks_name_index, HI_group)
     # print(model.nodes)
     Task_drop_order = []
     print(App_drop_order)
 
-    for t in Appset_backpack:
-        Appset.append(t)
-
-    for t in Appset:
-        keynode.append(t.keynode)
-        print("GRTEAF", t.taskset)
-
     for app in App_drop_order:
         temp_order = []
         print("================== App based Task Round =======================", '\n')
         print("Start to determine the task dropping order of application:", app)
+        Appset = []
+        for h in Appset_backpack:
+            print("uuuuu", h.taskset)
+            Appset.append(h)
 
         for t in Appset:
+            print("TTTTT", t.taskset)
             keynode.append(t.keynode)
             # print("TTTTT", t.taskset)
 
@@ -637,7 +636,7 @@ if __name__ == "__main__":
                 app_keynode = t.keynode
                 Test_task_set = t.taskset
 
-        print(Test_task_set, app_keynode)
+        print("Droppable tasks", Test_task_set, '\n', "Keynode:", app_keynode)
         keynode = []
         keynode.append(app_keynode)
 
@@ -646,6 +645,7 @@ if __name__ == "__main__":
             model, Tasks, Appset, temp_order, Test_task_set = Task_drop_and_update(app, Tasks, model, Appset,
                                                                                    HI_group, Test_task_set, temp_order,
                                                                                    keynode)
+
 
         Task_drop_order.append(temp_order)
         # for tt in temp_order:
@@ -656,4 +656,5 @@ if __name__ == "__main__":
     print("Application discarding order:", App_drop_order)
     print("Task degradation order", Task_drop_order, '\n')
     print("++++++++++++++++++++++++++++++++++++++++++++++++++", '\n')
+
 

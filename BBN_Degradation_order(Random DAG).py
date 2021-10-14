@@ -177,24 +177,6 @@ def parameters_initialisation(dict):
     # print("All tasks in the network", network_tasks)
     # print("All edges in the network", network_edges)
 
-    # network_tasks = [4, 5, 6, 7, 9]
-    # network_edges = [(4, 7), (5, 7), (6, 7), (7, 9)]
-    # model = BayesianNetwork(network_edges)
-    # values = pd.DataFrame(np.random.randint(low=0, high=2, size=(100, len(network_tasks))),
-    #                       columns= network_tasks)
-    # model.fit(values)
-    # model.get_cpds()
-
-    # Tasks = []
-    # for i in network_tasks:
-    #     if i in HI_group:
-    #         criticality = 'HI'
-    #     else:
-    #         criticality = 'LO'
-    #     Tasks.append(Task(model.get_cpds(i).variable, model.get_cpds(i), criticality))
-
-    # print(network_tasks)
-    # print(model.nodes)
 
     for i in Appset:
         i.taskset = [x for x in i.taskset if x not in HI_group]

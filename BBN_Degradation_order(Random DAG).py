@@ -11,6 +11,7 @@ import random
 from random import choice
 import os, sys
 
+
 class HiddenPrints:
     def __enter__(self):
         self._original_stdout = sys.stdout
@@ -19,6 +20,7 @@ class HiddenPrints:
     def __exit__(self, exc_type, exc_val, exc_tb):
         sys.stdout.close()
         sys.stdout = self._original_stdout
+
 
 class Task:
     # TODO: the properties will be extended to include more information for the scheduling problem
@@ -85,7 +87,6 @@ def load_task(task_idx, dag_base_folder="/home/jiezou/Documents/Context_aware MC
 
 
 def dictionary_definition():
-
     H = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
     dict = {}
     for i in range(100):
@@ -98,16 +99,18 @@ def dictionary_definition():
 
 
 def parameters_initialisation(dict):
-
     Appset = []
     bias = 0
     network_tasks = []
     network_edges = []
     HI_group = []
 
+    app_dependency_node = []
+
     for app in range(3):
         print("==========================")
-        G, V, C, _, W = load_task(task_idx=app, dag_base_folder="/home/jiezou/Documents/Context_aware MCS/dag-gen-rnd/data/data-multi-m4-u2.0/0/")
+        G, V, C, _, W = load_task(task_idx=app,
+                                  dag_base_folder="/home/jiezou/Documents/Context_aware MCS/dag-gen-rnd/data/data-multi-m4-u2.0/0/")
         # print("G: ", G)
         # print("V: ", V)
         # print("C: ", C)
@@ -120,6 +123,10 @@ def parameters_initialisation(dict):
                 edges.append(pair)
             V[i] += bias
         bias += len(V)
+
+        # Generate the relationship
+        print("V: ", V)
+        app_dependency_node.append(dict[choice(V[0:-2])])
 
         # print("The tasks of current application", V)
         # print("The edges of current application", edges)
@@ -150,7 +157,7 @@ def parameters_initialisation(dict):
         # print("Original edges", edges_test)
         tt = 1
         while tt:
-            remove_temp=[]
+            remove_temp = []
             # print("updated edges", edges_test)
             for i in range(len(edges_test)):
                 if edges_test[i][1] == seed:
@@ -173,18 +180,22 @@ def parameters_initialisation(dict):
     print("Hi tasks in the network ", HI_group)
     print("===================================================")
 
-
     # print("All tasks in the network", network_tasks)
     # print("All edges in the network", network_edges)
+
+    print(app_dependency_node)
+    for i in range(len(app_dependency_node)):
+        if i+1 < len(app_dependency_node):
+            network_edges.append((app_dependency_node[i], app_dependency_node[i+1]))
+    # print("All edges in the network", network_edges)
+
 
 
     for i in Appset:
         i.taskset = [x for x in i.taskset if x not in HI_group]
-        print("Application ID:", i.app_name,'\n', "The droppable tasks in the application", i.taskset, '\n',
+        print("Application ID:", i.app_name, '\n', "The droppable tasks in the application", i.taskset, '\n',
               "The keynode of the application", i.keynode)
 
-
-    # return Tasks, Appset, model, HI_group
     return network_edges, network_tasks, Appset, HI_group
 
 
@@ -195,7 +206,6 @@ def value_generation(network_tasks):
 
 
 def initialisation(network_edges, network_tasks, Appset, HI_group, values):
-
     model = BayesianNetwork(network_edges)
     # values = pd.DataFrame(np.random.randint(low=0, high=2, size=(100, len(network_tasks))),
     #                       columns=network_tasks)
@@ -355,7 +365,7 @@ def Task_Dropping_Test(dropped_task_set, Tasks1, model1, keynode):
         # print(model1.get_cpds(i).get_evidence())
         marginal_prob = infer.query([i])
         marginal_prob_set.append(marginal_prob)
-        print(marginal_prob)
+        # print(marginal_prob)
 
     return marginal_prob_set
 
@@ -395,7 +405,7 @@ def remove_task(Tasks, dropped_task):
 
 
 def remove_app(Appset, dropped_app):
-    print(dropped_app)
+    # print(dropped_app)
     for i in Appset:
         if i.app_name == dropped_app:
             Appset.remove(i)
@@ -497,7 +507,6 @@ def app_task_drop_test(app, Test_task_set, model_pre, tasks_name_index, HI_group
         print("=======================================================", '\n')
         print("*****Current tested task****", Test_task_set[i])
 
-
         model, Tasks = model_task_copy(model_pre, tasks_name_index, HI_group)
         print(model.nodes)
 
@@ -506,8 +515,8 @@ def app_task_drop_test(app, Test_task_set, model_pre, tasks_name_index, HI_group
         marginal_prob_set = Task_Dropping_Test(dropped_task_set, Tasks, model, Keynode)
         print(Keynode)
         for j in marginal_prob_set:
-            print(j.variables)
-            print(j)
+            # print(j.variables)
+            # print(j)
             if j.variables[0] == Keynode[0]:
                 marginal_prob_key = j
         print("***** Marginal Distribution of Key node ****", '\n')
@@ -562,7 +571,8 @@ if __name__ == "__main__":
     dict = dictionary_definition()
     network_edges, network_tasks, Appset, HI_group = parameters_initialisation(dict)
     values = value_generation(network_tasks)
-    Tasks_original, model_original, Appset_original, HI_group = initialisation(network_edges, network_tasks, Appset, HI_group, values)
+    Tasks_original, model_original, Appset_original, HI_group = initialisation(network_edges, network_tasks, Appset,
+                                                                               HI_group, values)
 
     Appset_backpack = []
     Appset = Appset_original
@@ -582,7 +592,6 @@ if __name__ == "__main__":
     print("--------------------------------------------------------", '\n')
 
     while len(Appset) > 1:
-
         model, Tasks, Appset, Dropped_APP = Application_drop_and_update(Tasks, model, Appset, HI_group, keynode)
         App_drop_order.append(Dropped_APP)
 
@@ -628,12 +637,10 @@ if __name__ == "__main__":
         keynode = []
         keynode.append(app_keynode)
 
-
         while Test_task_set:
             model, Tasks, Appset, temp_order, Test_task_set = Task_drop_and_update(app, Tasks, model, Appset,
                                                                                    HI_group, Test_task_set, temp_order,
                                                                                    keynode)
-
 
         Task_drop_order.append(temp_order)
         # for tt in temp_order:
@@ -644,5 +651,3 @@ if __name__ == "__main__":
     print("Application discarding order:", App_drop_order)
     print("Task degradation order", Task_drop_order, '\n')
     print("++++++++++++++++++++++++++++++++++++++++++++++++++", '\n')
-
-

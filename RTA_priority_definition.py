@@ -3,7 +3,16 @@ import random
 import math
 from random import sample
 from prettytable import PrettyTable
+import os, sys
 
+class HiddenPrints:
+    def __enter__(self):
+        self._original_stdout = sys.stdout
+        sys.stdout = open(os.devnull, 'w')
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        sys.stdout.close()
+        sys.stdout = self._original_stdout
 
 class Task:
     criticality = ''
@@ -135,7 +144,8 @@ def recursive_HI_MC(response_time, hp_tasks, task, require, MC_time_point):
         if j.criticality == "LO":
             temp0 += (math.floor(MC_time_point / j.period) + 1) * j.execution_time_LO
         else:
-            temp1 += math.ceil(MC_time_point / j.period) * j.execution_time_LO + math.ceil((response_time - MC_time_point) / j.period) * (j.execution_time_HI - j.execution_time_LO)
+            temp1 += math.ceil(MC_time_point / j.period) * j.execution_time_LO + math.ceil(
+                (response_time - MC_time_point) / j.period) * (j.execution_time_HI - j.execution_time_LO)
     temp = temp0 + temp1
     print("temp", temp)
 
@@ -143,6 +153,101 @@ def recursive_HI_MC(response_time, hp_tasks, task, require, MC_time_point):
 
     return response_time
 
+
+def response_time_Mode_change(task, Test_tasks):
+
+    response_time_LO_task = response_time_calculation_LO(task, Test_tasks)
+    print("the LO MODE response time:", response_time_LO_task)
+
+    response_time_set = []
+    MC_candidate = []
+    for i in range(response_time_LO_task):
+        print("+++++++++++++++++++++++++++++++++++++")
+        s = i
+        print("tested mode change time point:", s)
+        response_time_HI_task = response_time_calculation_HI_MC(task, Test_tasks, s)
+        print("-------------------------------------")
+        print("convergent response time:", response_time_HI_task, '\n')
+        response_time_set.append(response_time_HI_task)
+        MC_candidate.append(s)
+
+    print("+++++++++++++++++++++++++++++++++++++", '\n')
+
+    worst_case = max(response_time_set)
+    index = response_time_set.index(worst_case)
+    # print("index", index)
+    print("The mode change time point:", MC_candidate[index], "with worst case response time:", worst_case)
+    return worst_case
+
+def shedulability_check(task, Test_tasks):
+
+    print("LO MODE response time analysis for PRIORITY")
+    with HiddenPrints():
+        response_time_LO = response_time_calculation_LO(task, Test_tasks)
+    print("response time for LO MODE:", response_time_LO)
+    if response_time_LO <= task.deadline:
+        safisty = 1
+    else:
+        safisty = 0
+
+    if task.criticality == 'HI':
+        print("-------------------------------------------")
+        print("HI MODE response time analysis for PRIORITY")
+        print("-------------------------------------------")
+        with HiddenPrints():
+            response_time_HI = response_time_calculation_HI(task, Test_tasks)
+        print("response time for HI MODE:", response_time_HI)
+
+        with HiddenPrints():
+            response_timeMC = response_time_Mode_change(task, Test_tasks)
+        print("response time for mode change", response_timeMC)
+        print("-------------------------------------")
+        if response_time_HI <= task.deadline and response_timeMC <= task.deadline:
+            safisty = 1
+        else:
+            safisty = 0
+
+    return safisty
+
+def priority_erecursive(priority_temp, Test_tasks):
+
+    for i in range(len(Test_tasks)):
+
+        if Test_tasks[i].priority != -1:
+            for i in range(len(Test_tasks)):
+                 if Test_tasks[i].priority == -1:
+                    index = i
+                    break
+            if index != -1:
+                Test_tasks[index].priority = priority_temp
+                # print(index)
+                # table_print(Test_tasks)
+            else:
+                break
+        else:
+            Test_tasks[i].priority = priority_temp
+
+        # table_print(Test_tasks)
+        print('\n', "current checked task ID", i)
+        # table_print(Test_tasks)
+
+        safisty = shedulability_check(Test_tasks[i], Test_tasks)
+
+        if safisty == 1:
+            # Test_tasks[index].priority = priority_temp
+            priority_temp -= 1
+            print("!! schedulable update priority")
+            table_print(Test_tasks)
+            break
+
+        else:
+            print("The task is unschedulable with the priority level ")
+            Test_tasks[i].priority = -1
+            table_print(Test_tasks)
+
+
+
+    return priority_temp
 
 if __name__ == "__main__":
 
@@ -162,47 +267,80 @@ if __name__ == "__main__":
     Test_tasks.append(task4)
     # task5 = Task(5, 10, 10, 1, 3, 2, 1, "HI")
     # Test_tasks.append(task5)
-    print("---------Tasks in the system------------")
+    # print("---------Tasks in the system------------")
+    # table_print(Test_tasks)
+    #
+    # print("-------LO MODE response time analysis------")
+    # for i in Test_tasks:
+    #     print("-------------------------------------------")
+    #
+    #     response_time_LO = response_time_calculation_LO(i, Test_tasks)
+    #     print("-------------------------------------")
+    #     print("convergent response time:", response_time_LO, '\n')
+    #
+    # print("-------HI MODE response time analysis------")
+    # for i in Test_tasks:
+    #     if i.criticality == 'HI':
+    #         print("-------------------------------------------")
+    #
+    #         response_time_HI = response_time_calculation_HI(i, Test_tasks)
+    #         print("convergent response time:", response_time_HI)
+    #         print("-------------------------------------")
+    #
+    # print("***********************************************", '\n')
+    #
+    # print("------- Response time analysis LO to HI MODE CHANGE------")
+    # HI_task_set = []
+    # for i in Test_tasks:
+    #     if i.criticality == "HI":
+    #         HI_task_set.append(i)
+    # table_print(HI_task_set)
+    #
+    # for task in HI_task_set:
+    #     print("#########################################")
+    #
+    #     response_timeMC = response_time_Mode_change(task, Test_tasks)
+    #     print("response time for mode change", response_timeMC)
+
+# -------- Priority definition --------#
+#     print('\n', "START TO DETERMINE THE PRIORITY")
+    priority_level = len(Test_tasks)
+    unschedulable = []
+    for i in Test_tasks:
+        i.priority = -1
+        unschedulable.append(i.task_id)
     table_print(Test_tasks)
 
-    print("-------LO MODE response time analysis------")
-    for i in Test_tasks:
-        print("-------------------------------------------")
-        response_time_LO = response_time_calculation_LO(i, Test_tasks)
-        print("-------------------------------------")
-        print("convergent response time:", response_time_LO,'\n')
+    priority_temp = priority_level
 
-    print("-------HI MODE response time analysis------")
-    for i in Test_tasks:
-        if i.criticality == 'HI':
-            print("-------------------------------------------")
-            response_time_HI = response_time_calculation_HI(i, Test_tasks)
-            print("convergent response time:", response_time_HI)
-            print("-------------------------------------")
+    conti  = 1
 
-    print("***********************************************", '\n')
+    while conti:
+        print("*********************")
+        num = 0
+        # table_print(Test_tasks)
+        for i in Test_tasks:
+            if i.priority == -1:
+                num +=1
+        if num == 0:
+            break
+        else:
+            print("The allocated priority level:", priority_temp)
+            priority_temp = priority_erecursive(priority_temp, Test_tasks)
 
-    print("------- Response time analysis LO to HI MODE CHANGE------")
-    HI_task_set = []
-    for i in Test_tasks:
-        if i.criticality == "HI":
-            HI_task_set.append(i)
-    table_print(HI_task_set)
-    response_time_LO_task = response_time_calculation_LO(task1, Test_tasks)
-    print("the LO MODE response time:", response_time_LO_task)
-    response_time_set = []
-    MC_candidate = []
-    for i in range(response_time_LO_task):
-        print("+++++++++++++++++++++++++++++++++++++")
-        s = i
-        print("tested mode change time point:", s)
-        response_time_HI_task = response_time_calculation_HI_MC(task1, Test_tasks, s)
-        print("-------------------------------------")
-        print("convergent response time:", response_time_HI_task, '\n')
-        response_time_set.append(response_time_HI_task)
-        MC_candidate.append(s)
-    print("+++++++++++++++++++++++++++++++++++++", '\n')
-    worst_case = max(response_time_set)
-    index = response_time_set.index(worst_case)
-    # print("index", index)
-    print("The mode change time point:", MC_candidate[index], "with worst case response time:", worst_case)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

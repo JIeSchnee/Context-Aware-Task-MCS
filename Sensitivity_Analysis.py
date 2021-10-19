@@ -250,7 +250,6 @@ def priority_recursive(priority_temp, Test_tasks):
 
 def response_time_HI_SA(task, Test_tasks, Dropped):
 
-    sati = 1
     response_time_LO_task = response_time_calculation_LO(task, Test_tasks, Dropped)
     print("the LO MODE response time:", response_time_LO_task)
 
@@ -274,8 +273,15 @@ def response_time_HI_SA(task, Test_tasks, Dropped):
     # print("index", index)
     print("The mode change time point:", MC_candidate[index], "with worst case response time:", worst_case)
 
-    if worst_case > task.deadline:
-        print("we need to drop task with the lowest importance value at time point s ")
+    response = 0
+    for i in range(len(response_time_set)):
+        if response_time_set[i] > task.deadline:
+            response = response_time_set[i]
+            time_pont = MC_candidate[i]
+            break
+
+    if response > task.deadline:
+        print("we need to drop task with the lowest importance value at time point s ", time_pont)
         LO_task_set = []
         temp = []
         for i in Test_tasks:
@@ -285,7 +291,7 @@ def response_time_HI_SA(task, Test_tasks, Dropped):
         temp_index = temp.index(max(temp))
 
         Dropped[0].append(LO_task_set[temp_index])
-        Dropped[1].append(MC_candidate[index])
+        Dropped[1].append(time_pont)
         sati_HI = 1
     else:
         sati_HI = 0
@@ -395,6 +401,7 @@ if __name__ == "__main__":
     table_print(Test_tasks)
 
     print("************* Sensitivity Analysis *****************")
+
     # in crease the overrun of HI tasks each time by 10%
 
     Dropped_Task = []
@@ -409,14 +416,10 @@ if __name__ == "__main__":
         if j.criticality == "LO":
             LO_task_set.append(j)
 
-
-
-    # TODO: 加每次增加10%的循环
     overrun_con = 1
     num_check = 0
     while 1:
-
-        print('\n', "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+        print('\n', "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^", '\n')
 
         if len(LO_task_set) == len(Dropped[0]):
             print("All droppable tasks have already been dropped")
@@ -448,9 +451,9 @@ if __name__ == "__main__":
                 if i.execution_time_LO >= i.execution_time_HI:
                     i.execution_time_LO = i.execution_time_HI
 
-        print("---------- Sensitivity Analysis -------------")
+        print("Current overrun:", 0.1 * overrun_con, '\n')
 
-        print("Current overrun:", 0.1 * overrun_con)
+
 
         print("---------- Sensitivity Analysis LO-------------")
         start = 1
@@ -486,9 +489,10 @@ if __name__ == "__main__":
 
         overrun_con += 1
 
+    print('\n', "++++++++++++++++++++++++++++++++++++++++++++++++++")
     print("Final result:")
     table_print(Dropped[0])
-    print(Dropped[1])
+    print("Dropping time point", Dropped[1])
 
 
 

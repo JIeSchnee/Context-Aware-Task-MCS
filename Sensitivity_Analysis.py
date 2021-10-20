@@ -49,10 +49,14 @@ def response_time_calculation_LO(task, task_set, Dropped):
     for i in task_set:
         if i.priority < task.priority:
             hp_tasks.append(i)
-    print(" ----------------tasks with higher priority----------------")
+    print('\n', "Tasks with higher priority:")
     table_print(hp_tasks)
+    print("Dropped tasks:")
+    table_print(Dropped[0])
     rep = response_time
+    print('\n', "------------------------------",'\n')
     print("start recursive")
+    print('\n', "------------------------------")
     k = 1
     while k:
         response_time = recursive_LO(response_time, hp_tasks, task, Dropped)
@@ -73,10 +77,10 @@ def recursive_LO(response_time, hp_tasks, task, Dropped):
     for j in hp_tasks:
         if j in Dropped[0]:
             index = Dropped[0].index(j)
-            print("kk", Dropped[1][index], j.period, j.execution_time_LO)
+            print("interference from dropped task", Dropped[1][index], j.period, j.execution_time_LO)
             temp0 += (math.ceil(Dropped[1][index] / j.period)) * j.execution_time_LO
         else:
-            print("mark", response_time, j.period, j.execution_time_LO)
+            print("interference from HI task with higher priority", response_time, j.period, j.execution_time_LO)
             temp1 += math.ceil(response_time / j.period) * j.execution_time_LO
 
         temp = temp0 + temp1
@@ -259,7 +263,7 @@ def priority_recursive(priority_temp, Test_tasks):
     return priority_temp
 
 
-def response_time_HI_SA(task, Test_tasks, Dropped):
+def response_time_HI_SA(task, Test_tasks, Dropped, overrun):
 
     print("get LO response time")
     response_time_LO_task = response_time_calculation_LO(task, Test_tasks, Dropped)
@@ -268,7 +272,7 @@ def response_time_HI_SA(task, Test_tasks, Dropped):
     response_time_set = []
     MC_candidate = []
 
-    for i in range(response_time_LO_task):
+    for i in range(math.floor(response_time_LO_task)):
         print("+++++++++++++++++++++++++++++++++++++")
         s = i
         print("tested mode change time point:", s)
@@ -293,14 +297,14 @@ def response_time_HI_SA(task, Test_tasks, Dropped):
             break
 
     if response > task.deadline:
-        print("we need to drop task with the lowest importance value at time point s ", time_pont)
+        print("we need to drop task with the lowest importance value at time point s ", time_pont,'\n')
 
         # RT = response_time_calculation_HI_SA(task, Test_tasks, response_time_LO_task, Dropped)
         # if response
 
         LO_task_set = []
         temp = []
-
+        print("Already dropped tasks")
         table_print(Dropped[0])
 
         test = []
@@ -309,25 +313,26 @@ def response_time_HI_SA(task, Test_tasks, Dropped):
             if j.criticality == "LO":
                 test.append(j)
 
+
+
         if len(Dropped[0]) == len(test):
             sati_HI = 0
         else:
+            LO_task_set = []
             for i in Test_tasks:
-                LO_task_set=[]
                 if i.criticality == "LO":
                     if i not in Dropped[0]:
-                        print(i.task_id)
+                        # print(i.task_id)
                         LO_task_set.append(i)
                         temp.append(i.importance)
 
-            print(temp)
             table_print(LO_task_set)
             temp_index = temp.index(max(temp))
-            print(temp_index)
-            print("TTTTTTTTTTTTTTTTT", LO_task_set[temp_index].task_id)
+            print("The latest dropped task", LO_task_set[temp_index].task_id)
             Dropped[0].append(LO_task_set[temp_index])
             Dropped[1].append(time_pont)
-
+            Dropped[2].append(overrun)
+            Dropped[3].append(task.task_id)
 
             sati_HI = 1
     else:
@@ -370,7 +375,9 @@ def recursive_HI_SA(response_time, hp_tasks, task, MC_time_point, Dropped):
     for j in hp_tasks:
         if j.criticality == "LO":
             if j in Dropped[0]:
+                print("interference from dropped task:", j.task_id)
                 index = Dropped[0].index(j)
+                print("The dropped time point", Dropped[1][index])
                 temp0 += (math.ceil(Dropped[1][index] / j.period)) * j.execution_time_LO
                 # index = Dropped[0].index(j)
                 # if Dropped[1][index] >= MC_time_point:
@@ -378,8 +385,10 @@ def recursive_HI_SA(response_time, hp_tasks, task, MC_time_point, Dropped):
                 # else:
                 #     temp0 += (math.floor(MC_time_point / j.period) + 1) * j.execution_time_LO
             else:
+                print("interference from un-dropped task", j.task_id)
                 temp1 += (math.floor(MC_time_point / j.period) + 1) * j.execution_time_LO
         else:
+            print("interference from HI task with higher priority", j.task_id)
             temp2 += math.ceil(MC_time_point / j.period) * j.execution_time_LO + math.ceil(
                 (response_time - MC_time_point) / j.period) * (j.execution_time_HI - j.execution_time_LO)
 
@@ -390,11 +399,11 @@ def recursive_HI_SA(response_time, hp_tasks, task, MC_time_point, Dropped):
 
     return response_time
 
-def Sensitivity_Analysis_LO(Test_tasks, Dropped):
-
+def Sensitivity_Analysis_LO(Test_tasks, Dropped, overrun):
+    print('\n', "Sensitivity_Analysis_LO", '\n')
     sati = 1
     for i in Test_tasks:
-        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+        print("**********************************************")
         if i not in Dropped[0]:
             response_time_LO = response_time_calculation_LO(i, Test_tasks, Dropped)
             if response_time_LO > i.deadline:
@@ -413,6 +422,8 @@ def Sensitivity_Analysis_LO(Test_tasks, Dropped):
 
                 Dropped[0].append(LO_task_set[temp_index])
                 Dropped[1].append(0)
+                Dropped[2].append(overrun)
+                Dropped[3].append(i.task_id)
                 print("we need to drop tasks once overrun happened")
                 sati = 1
                 break
@@ -438,8 +449,8 @@ if __name__ == "__main__":
     Test_tasks.append(task3)
     task4 = Task(4, 5, 5, 1, 0, 2, 1, "LO")
     Test_tasks.append(task4)
-    # task5 = Task(5, 30, 30, 1, 5, 5, 1, "HI")
-    # Test_tasks.append(task5)
+    task5 = Task(5, 30, 30, 1, 5, 5, 1, "HI")
+    Test_tasks.append(task5)
 
     print("---------Tasks in the system------------")
     table_print(Test_tasks)
@@ -447,12 +458,15 @@ if __name__ == "__main__":
     print("************* Sensitivity Analysis *****************")
 
     # in crease the overrun of HI tasks each time by 10%
-
+    monitor_task = []
+    system_overrun = []
     Dropped_Task = []
     Dropped_Time = []
 
     Dropped = [Dropped_Task,
-               Dropped_Time]
+               Dropped_Time,
+               system_overrun,
+               monitor_task]
 
     LO_task_set = []
     temp = []
@@ -482,26 +496,28 @@ if __name__ == "__main__":
                 HI_task_set.append(i)
 
         if num_check == len(HI_task_set):
-            print("All droppable tasks have already been dropped"
-                  " and all HI task can be executed no more than their HI bound ",'\n',
+            print("All HI task can be executed no more than their HI bound ",'\n',
                   "(Not all Low tasks need to be dropped)")
 
             table_print(Dropped[0])
             print(Dropped[1])
             break
 
+        overrun = 0.1 * overrun_con
         for i in Test_tasks:
             if i.criticality == 'HI':
                 # i.execution_time_LO = math.floor((1 + 0.1*overrun_con) * i.execution_time_LO)
-                i.execution_time_LO += 1
+                # i.execution_time_LO += 1
+                i.execution_time_LO = (1 + overrun) * i.execution_time_LO
                 if i.execution_time_LO >= i.execution_time_HI:
                     i.execution_time_LO = i.execution_time_HI
 
-        print("Current overrun:", Test_tasks[0].execution_time_LO, '\n')
+        print("Current overrun:", overrun, '\n')
+        print("Already drooped tasks:")
         table_print(Dropped[0])
 
 
-        print("---------- Sensitivity Analysis LO-------------")
+        print('\n',"---------- Sensitivity Analysis LO-------------")
         # start = 1
         # round = 0
         # while start:
@@ -516,14 +532,15 @@ if __name__ == "__main__":
         # table_print(Dropped[0])
         # print(Dropped[1])
 
-        sati = Sensitivity_Analysis_LO(Test_tasks, Dropped)
+        sati = Sensitivity_Analysis_LO(Test_tasks, Dropped, overrun)
         if sati ==1:
             print("One Low task should be dropped once overrun happens")
             table_print(Dropped[0])
         else:
             print("Continue to find out the discarded task")
 
-        print("---------- Sensitivity Analysis HI -------------")
+        print('\n', "---------- Sensitivity Analysis HI -------------")
+        print('\n', "Sensitivity_Analysis_LO", '\n')
 
         table_print(HI_task_set)
         start = 1
@@ -550,7 +567,7 @@ if __name__ == "__main__":
                 print(Dropped[1])
                 break
 
-            print("restart")
+            print(" ++++++++++++++++ Restart +++++++++++++++++++")
             table_print(Dropped[0])
             print(Dropped[1])
 
@@ -561,15 +578,17 @@ if __name__ == "__main__":
                     break
                 else:
                     print("#########################################", '\n')
+                    print("Already dropped tasks")
                     table_print(Dropped[0])
-                    print(HI_count)
+                    # print(HI_count)
                     print("+++++++++++++++ task", task.task_id, "+++++++++++++++++++")
-                    response_timeMC, sati_HI = response_time_HI_SA(task, Test_tasks, Dropped)
+                    response_timeMC, sati_HI = response_time_HI_SA(task, Test_tasks, Dropped, overrun)
                     if sati_HI == 1:
                         break
                     elif sati_HI == 0:
                         HI_count += 1
-                        print("continual HI", HI_count)
+                        print(HI_count)
+                        print("The dropping task test of HI task:", task.task_id, "is finished",'\n')
 
             if sati_HI == 1:
                print("Increase the overrun")
@@ -580,7 +599,9 @@ if __name__ == "__main__":
     print('\n', "++++++++++++++++++++++++++++++++++++++++++++++++++")
     print("Final result:")
     table_print(Dropped[0])
-    print("Dropping time point", Dropped[1])
+    print("Dropping time point:",'\n', Dropped[1])
+    print("System overrun:", '\n', Dropped[2])
+    print("Monitored key task under corresponding system overrun:", '\n', Dropped[3])
 
 
 

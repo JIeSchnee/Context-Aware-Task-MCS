@@ -117,21 +117,21 @@ def response_time_HI_SA(task, Test_tasks, Dropped, overrun):
     # print("index", index)
     print("The mode change time point:", MC_candidate[index], "with worst case response time:", worst_case)
 
-    response = 0
-    for i in range(len(response_time_set)):
-        if response_time_set[i] > task.deadline:
-            response = response_time_set[i]
-            if response == task.deadline:
-                upper_bound = response
-            else:
-                upper_bound = response_time_set[i-1]
-            time_pont = MC_candidate[i]
-            break
+    if worst_case > task.deadline:
 
-    if response > task.deadline:
+        for i in range(len(response_time_set)):
+            if response_time_set[i] >= task.deadline:
+                response = response_time_set[i]
+                if response == task.deadline:
+                    upper_bound = response
+                else:
+                    upper_bound = response_time_set[i - 1]
+                time_pont = MC_candidate[i]
+                break
+
         print("we need to drop task with the lowest importance value at time point s ", time_pont, '\n')
         print("the execution time of checked task is ", task.execution_time_LO)
-
+        print(response_time_set)
         print("Already dropped tasks")
         table_print(Dropped[0])
 
@@ -285,8 +285,8 @@ if __name__ == "__main__":
     Test_tasks.append(task3)
     task4 = Task(4, 5, 5, 1, 0, 2, 1, "LO")
     Test_tasks.append(task4)
-    # task5 = Task(5, 30, 30, 1, 5, 5, 1, "HI")
-    # Test_tasks.append(task5)
+    task5 = Task(5, 30, 30, 1, 5, 5, 1, "HI")
+    Test_tasks.append(task5)
 
     print("---------Tasks in the system------------")
     table_print(Test_tasks)
@@ -421,11 +421,12 @@ if __name__ == "__main__":
                     if sati_HI == 1:
                         break
                     elif sati_HI == 0:
+                        Increace_mark = 1
                         HI_count += 1
                         print(HI_count)
                         print("The dropping task test of HI task:", task.task_id, "is finished", '\n')
 
-            if sati_HI == 1:
+            if Increace_mark == 1:
                 print("Increase the overrun")
                 start = 0
 
@@ -442,6 +443,6 @@ if __name__ == "__main__":
         if Dropped[2][i] != 0:
             print("if HI task", Dropped[5][i], " with LO_execution time", Dropped[4][i][0],
                   "can not finish its execution after", Dropped[2][i], '\n',
-                  "It is allowed to be executed. However,  if the response time attempt to be larger than", Dropped[1][i],
+                  "It is allowed to be executed. However, if the response time attempt to be larger than", Dropped[1][i],
                   ". LO task", Dropped[0][i].task_id, "should be dropped directly")
 

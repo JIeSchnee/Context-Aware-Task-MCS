@@ -131,7 +131,7 @@ def response_time_HI_SA(task, Test_tasks, Dropped, overrun):
 
         print("we need to drop task with the lowest importance value at time point s ", time_pont, '\n')
         print("the execution time of checked task is ", task.execution_time_LO)
-        print(response_time_set)
+        # print(response_time_set)
         print("Already dropped tasks")
         table_print(Dropped[0])
 
@@ -285,8 +285,8 @@ if __name__ == "__main__":
     Test_tasks.append(task3)
     task4 = Task(4, 5, 5, 1, 0, 2, 1, "LO")
     Test_tasks.append(task4)
-    task5 = Task(5, 30, 30, 1, 5, 5, 1, "HI")
-    Test_tasks.append(task5)
+    # task5 = Task(5, 30, 30, 1, 5, 5, 1, "HI")
+    # Test_tasks.append(task5)
 
     print("---------Tasks in the system------------")
     table_print(Test_tasks)
@@ -356,12 +356,14 @@ if __name__ == "__main__":
                 # i.execution_time_LO += 1
                 # print("before", Test_tasks[i].execution_time_LO)
                 # print(overrun)
-                Test_tasks[i].execution_time_LO = (1 + overrun) * Test_tasks[i].execution_time_LO
+                Test_tasks[i].execution_time_LO = (1 + overrun) * Test_tasks[i].execution_time_LO / \
+                                                  (1 + 0.01 * (overrun_con - 1))
                 if Test_tasks[i].execution_time_LO >= Test_tasks[i].execution_time_HI:
                     Test_tasks[i].execution_time_LO = Test_tasks[i].execution_time_HI
                 # print("after", Test_tasks[i].execution_time_LO)
 
         print("Current overrun:", overrun, '\n')
+        table_print(Test_tasks)
         # print("Current overrun:", Test_tasks[0].execution_time_LO, '\n')
         print("Already drooped tasks:")
         table_print(Dropped[0])
@@ -441,8 +443,11 @@ if __name__ == "__main__":
 
     for i in range(len(Dropped[0])):
         if Dropped[2][i] != 0:
-            print("if HI task", Dropped[5][i], " with LO_execution time", Dropped[4][i][0],
-                  "can not finish its execution after", Dropped[2][i], '\n',
-                  "It is allowed to be executed. However, if the response time attempt to be larger than", Dropped[1][i],
-                  ". LO task", Dropped[0][i].task_id, "should be dropped directly")
+            print('\n', "if HI task", Dropped[5][i], " with LO_execution time", Dropped[4][i][0],
+                  "can not finish its execution after", Dropped[2][i], ".",  "It is allowed to be executed continuously.", '\n'
+                  ," However, if the response time of it attempts to be larger than", Dropped[1][i], '.',
+                  "LO task", Dropped[0][i].task_id, "should be dropped directly")
+        else:
+            print('\n', "Once overrun", Dropped[3][i], "happens. LO Task", Dropped[0][i].task_id,
+                  "need to be dropped directly")
 

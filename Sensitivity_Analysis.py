@@ -156,7 +156,7 @@ def response_time_HI_SA(task, Test_tasks, Dropped, overrun):
             temp_index = temp.index(max(temp))
 
             print("The latest dropped task", LO_task_set[temp_index].task_id)
-            print( task.execution_time_LO)
+            print(task.execution_time_LO)
             print(overrun)
 
             test = copy.deepcopy(task)
@@ -169,7 +169,7 @@ def response_time_HI_SA(task, Test_tasks, Dropped, overrun):
             Dropped[1].append(upper_bound)  # upperbound
             Dropped[2].append(test_rp)  # lower bound
             Dropped[3].append(overrun)
-            Dropped[4].append(test.execution_time_LO)
+            Dropped[4].append((test.execution_time_LO, task.execution_time_LO))
             Dropped[5].append(task.task_id)
 
             sati_HI = 1
@@ -354,12 +354,12 @@ if __name__ == "__main__":
             if Test_tasks[i].criticality == 'HI':
                 # i.execution_time_LO = math.floor((1 + overrun) * i.execution_time_LO)
                 # i.execution_time_LO += 1
-                print("before", Test_tasks[i].execution_time_LO)
-                print(overrun)
+                # print("before", Test_tasks[i].execution_time_LO)
+                # print(overrun)
                 Test_tasks[i].execution_time_LO = (1 + overrun) * Test_tasks[i].execution_time_LO
                 if Test_tasks[i].execution_time_LO >= Test_tasks[i].execution_time_HI:
                     Test_tasks[i].execution_time_LO = Test_tasks[i].execution_time_HI
-                print("after", Test_tasks[i].execution_time_LO)
+                # print("after", Test_tasks[i].execution_time_LO)
 
         print("Current overrun:", overrun, '\n')
         # print("Current overrun:", Test_tasks[0].execution_time_LO, '\n')
@@ -367,19 +367,6 @@ if __name__ == "__main__":
         table_print(Dropped[0])
 
         print('\n', "---------- Sensitivity Analysis LO-------------")
-        # start = 1
-        # round = 0
-        # while start:
-        #     print("round", round)
-        #     sati = Sensitivity_Analysis_LO(Test_tasks, Dropped)
-        #     round +=1
-        #     if sati == 0:
-        #         print("The system become schedulable after task dropping")
-        #         break
-        #
-        # print("After Sensitivity Analysis LO, the dropped task under overload", 0.1 * overrun_con)
-        # table_print(Dropped[0])
-        # print(Dropped[1])
 
         sati = Sensitivity_Analysis_LO(Test_tasks, Dropped, overrun)
         if sati == 1:
@@ -453,13 +440,8 @@ if __name__ == "__main__":
 
     for i in range(len(Dropped[0])):
         if Dropped[2][i] != 0:
-
-            if Dropped[2][i] >= Dropped[1][i]:
-                print("If HI task", Dropped[5][i], " with LO_execution time", Dropped[4][i],
-                      "can not finish its execution after", Dropped[2][i],  "LO task",
-                      Dropped[0][i].task_id, "should be dropped")
-            else:
-                print("if HI task", Dropped[5][i], " with LO_execution time", Dropped[4][i],
-                      "can not finish its execution after", Dropped[2][i], "before", Dropped[1][i],
-                      "LO task", Dropped[0][i].task_id, "should be dropped directly")
+            print("if HI task", Dropped[5][i], " with LO_execution time", Dropped[4][i][0],
+                  "can not finish its execution after", Dropped[2][i], '\n',
+                  "It is allowed to be executed. However,  if the response time attempt to be larger than", Dropped[1][i],
+                  ". LO task", Dropped[0][i].task_id, "should be dropped directly")
 

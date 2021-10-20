@@ -6,6 +6,7 @@ from prettytable import PrettyTable
 import os, sys
 import copy
 
+
 class HiddenPrints:
     def __enter__(self):
         self._original_stdout = sys.stdout
@@ -78,8 +79,12 @@ def recursive_LO(response_time, hp_tasks, task, Dropped):
     for j in hp_tasks:
         if j in Dropped[0]:
             index = Dropped[0].index(j)
-            print("interference from dropped task", Dropped[1][index], j.period, j.execution_time_LO)
-            temp0 += (math.floor(Dropped[1][index] / j.period) + 1) * j.execution_time_LO
+            if response_time >= Dropped[1][index]:
+                time_point  = Dropped[1][index]
+            else:
+                time_point = response_time
+            print("interference from dropped task", time_point, j.period, j.execution_time_LO)
+            temp0 += (math.floor(time_point / j.period) + 1) * j.execution_time_LO
         else:
             print("interference from HI task with higher priority", response_time, j.period, j.execution_time_LO)
             temp1 += math.ceil(response_time / j.period) * j.execution_time_LO
@@ -160,7 +165,8 @@ def response_time_HI_SA(task, Test_tasks, Dropped, overrun):
             print(overrun)
 
             test = copy.deepcopy(task)
-            test.execution_time_LO = test.execution_time_LO / (1 + overrun)
+            original = task.execution_time_LO / (1 + overrun)
+            test.execution_time_LO = original * (1 + (overrun-0.1))
             with HiddenPrints():
                 test_rp = response_time_calculation_LO(test, Test_tasks, Dropped)
             print("@@@@@@@", time_pont, test_rp)
@@ -214,8 +220,12 @@ def recursive_HI_SA(response_time, hp_tasks, task, MC_time_point, Dropped):
             if j in Dropped[0]:
                 print("interference from dropped task:", j.task_id)
                 index = Dropped[0].index(j)
-                print("The dropped time point", Dropped[1][index])
-                temp0 += (math.floor(Dropped[1][index] / j.period) + 1) * j.execution_time_LO
+                if response_time >= Dropped[1][index]:
+                    time_point = Dropped[1][index]
+                else:
+                    time_point = response_time
+                print("The dropped time point", time_point)
+                temp0 += (math.floor(time_point / j.period) + 1) * j.execution_time_LO
             else:
                 print("interference from un-dropped task", j.task_id)
                 temp1 += (math.floor(MC_time_point / j.period) + 1) * j.execution_time_LO
@@ -276,7 +286,7 @@ if __name__ == "__main__":
 
     Test_tasks = []
     # task_id, deadline, period, execution_time_LO, execution_time_HI, priority, importance, criticality
-    task1 = Task(1, 24, 24, 5, 15, 3, 0, "HI")
+    task1 = Task(1, 25, 25, 5, 15, 3, 0, "HI")
     # task1 = Task(1, 30, 30, 5, 15, 3, 0, "HI")
     Test_tasks.append(task1)
     task2 = Task(2, 20, 20, 5, 0, 4, 3, "LO")
@@ -318,6 +328,12 @@ if __name__ == "__main__":
     overrun_con = 1
     num_check = 0
 
+    execution_time_LO_cp = []
+    Name_cp = []
+    for i in Test_tasks:
+        execution_time_LO_cp.append(i.execution_time_LO)
+        Name_cp.append(i.task_id)
+
     while 1:
         print('\n', "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^", '\n')
 
@@ -344,10 +360,8 @@ if __name__ == "__main__":
             print(Dropped[1])
             break
 
-        overrun = 0.01 * overrun_con
-        execution_time_LO_cp = []
-        for i in Test_tasks:
-            execution_time_LO_cp.append(i.execution_time_LO)
+        overrun = 0.1 * overrun_con
+
 
         for i in range(len(Test_tasks)):
 
@@ -356,8 +370,7 @@ if __name__ == "__main__":
                 # i.execution_time_LO += 1
                 # print("before", Test_tasks[i].execution_time_LO)
                 # print(overrun)
-                Test_tasks[i].execution_time_LO = (1 + overrun) * Test_tasks[i].execution_time_LO / \
-                                                  (1 + 0.01 * (overrun_con - 1))
+                Test_tasks[i].execution_time_LO = (1 + overrun) * execution_time_LO_cp[i]
                 if Test_tasks[i].execution_time_LO >= Test_tasks[i].execution_time_HI:
                     Test_tasks[i].execution_time_LO = Test_tasks[i].execution_time_HI
                 # print("after", Test_tasks[i].execution_time_LO)
@@ -444,10 +457,10 @@ if __name__ == "__main__":
     for i in range(len(Dropped[0])):
         if Dropped[2][i] != 0:
             print('\n', "if HI task", Dropped[5][i], " with LO_execution time", Dropped[4][i][0],
-                  "can not finish its execution after", Dropped[2][i], ".",  "It is allowed to be executed continuously.", '\n'
-                  ," However, if the response time of it attempts to be larger than", Dropped[1][i], '.',
+                  "can not finish its execution after", Dropped[2][i], ".",
+                  "It is allowed to be executed continuously.", '\n'
+                  , " However, if the response time of it attempts to be larger than", Dropped[1][i], '.',
                   "LO task", Dropped[0][i].task_id, "should be dropped directly")
         else:
             print('\n', "Once overrun", Dropped[3][i], "happens. LO Task", Dropped[0][i].task_id,
                   "need to be dropped directly")
-

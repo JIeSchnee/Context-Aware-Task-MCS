@@ -79,7 +79,7 @@ def recursive_LO(response_time, hp_tasks, task, Dropped):
         if j in Dropped[0]:
             index = Dropped[0].index(j)
             print("interference from dropped task", Dropped[1][index], j.period, j.execution_time_LO)
-            temp0 += (math.ceil(Dropped[1][index] / j.period)) * j.execution_time_LO
+            temp0 += (math.floor(Dropped[1][index] / j.period) + 1) * j.execution_time_LO
         else:
             print("interference from HI task with higher priority", response_time, j.period, j.execution_time_LO)
             temp1 += math.ceil(response_time / j.period) * j.execution_time_LO
@@ -121,13 +121,16 @@ def response_time_HI_SA(task, Test_tasks, Dropped, overrun):
     for i in range(len(response_time_set)):
         if response_time_set[i] > task.deadline:
             response = response_time_set[i]
+            if response == task.deadline:
+                upper_bound = response
+            else:
+                upper_bound = response_time_set[i-1]
             time_pont = MC_candidate[i]
             break
 
     if response > task.deadline:
         print("we need to drop task with the lowest importance value at time point s ", time_pont, '\n')
         print("the execution time of checked task is ", task.execution_time_LO)
-
 
         print("Already dropped tasks")
         table_print(Dropped[0])
@@ -163,7 +166,7 @@ def response_time_HI_SA(task, Test_tasks, Dropped, overrun):
             print("@@@@@@@", time_pont, test_rp)
             print("updated execution_time_LO", test.execution_time_LO)
             Dropped[0].append(LO_task_set[temp_index])
-            Dropped[1].append(time_pont)  # upperbound
+            Dropped[1].append(upper_bound)  # upperbound
             Dropped[2].append(test_rp)  # lower bound
             Dropped[3].append(overrun)
             Dropped[4].append(test.execution_time_LO)

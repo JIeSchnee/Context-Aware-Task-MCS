@@ -621,6 +621,7 @@ if __name__ == "__main__":
     table_print(Dropped[0])
     print("Dropping time point:", '\n', Dropped[1])
     print("System overrun:", '\n', Dropped[3])
+    print("monitored HI tasks:", '\n', Dropped[5])
 
 
     for i in range(len(Dropped[0])):

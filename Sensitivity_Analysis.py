@@ -174,7 +174,7 @@ def response_time_HI_SA(task, Test_tasks, Dropped, overrun):
             Dropped[0].append(LO_task_set[temp_index])
             Dropped[1].append(upper_bound)  # upperbound
             Dropped[2].append(test_rp)  # lower bound
-            Dropped[3].append(overrun)
+            Dropped[3].append(overrun-0.1)
             Dropped[4].append((test.execution_time_LO, task.execution_time_LO))
             Dropped[5].append(task.task_id)
 
@@ -452,14 +452,12 @@ if __name__ == "__main__":
     table_print(Dropped[0])
     print("Dropping time point:", '\n', Dropped[1])
     print("System overrun:", '\n', Dropped[3])
-    print("monitored HI tasks:", '\n', Dropped[5])
+    print("monitored tasks:", '\n', Dropped[5])
 
     for i in range(len(Dropped[0])):
         if Dropped[2][i] != 0:
-            print('\n', "if HI task", Dropped[5][i], " with LO_execution time", Dropped[4][i][0], "(", Dropped[4][i][1], ")" 
+            print('\n', "if HI task", Dropped[5][i], " with LO_execution time", Dropped[4][i][0], "(with overrun", Dropped[3][i] , ")" 
                   "can not finish its execution after", Dropped[2][i], ".",
-                  "It is allowed to be executed continuously.", '\n'
-                  , " However, if the response time of it attempts to be larger than", Dropped[1][i], '.',
                   "LO task", Dropped[0][i].task_id, "should be dropped directly")
         else:
             print('\n', "Once overrun", Dropped[3][i], "happens. LO Task", Dropped[0][i].task_id,

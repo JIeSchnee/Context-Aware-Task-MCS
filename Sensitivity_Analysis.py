@@ -161,15 +161,15 @@ def response_time_HI_SA(task, Test_tasks, Dropped, overrun):
             temp_index = temp.index(max(temp))
 
             print("The latest dropped task", LO_task_set[temp_index].task_id)
-            print(task.execution_time_LO)
-            print(overrun)
+            # print(task.execution_time_LO)
+            # print(overrun)
 
             test = copy.deepcopy(task)
             original = task.execution_time_LO / (1 + overrun)
             test.execution_time_LO = original * (1 + (overrun-0.1))
             with HiddenPrints():
                 test_rp = response_time_calculation_LO(test, Test_tasks, Dropped)
-            print("@@@@@@@", time_pont, test_rp)
+            # print("@@@@@@@", time_pont, test_rp)
             print("updated execution_time_LO", test.execution_time_LO)
             Dropped[0].append(LO_task_set[temp_index])
             Dropped[1].append(upper_bound)  # upperbound
@@ -456,7 +456,7 @@ if __name__ == "__main__":
 
     for i in range(len(Dropped[0])):
         if Dropped[2][i] != 0:
-            print('\n', "if HI task", Dropped[5][i], " with LO_execution time", Dropped[4][i][0],
+            print('\n', "if HI task", Dropped[5][i], " with LO_execution time", Dropped[4][i][0], "(", Dropped[4][i][1], ")" 
                   "can not finish its execution after", Dropped[2][i], ".",
                   "It is allowed to be executed continuously.", '\n'
                   , " However, if the response time of it attempts to be larger than", Dropped[1][i], '.',

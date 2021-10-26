@@ -121,7 +121,7 @@ def parameters_initialisation(dict):
     for app in range(3):
         print("==========================")
         G, V, C, _, T, W = load_task(task_idx=app,
-                                  dag_base_folder="/home/jiezou/Documents/Context_aware MCS/dag-gen-rnd-master/data/data-multi-m4-u2.0/1/")
+                                  dag_base_folder="/home/jiezou/Documents/Context_aware MCS/dag-gen-rnd-master/data/data-multi-m4-u2.0/0/")
         # print("G: ", G)
         # print("V: ", V)
         # print("C: ", C)
@@ -920,9 +920,12 @@ if __name__ == "__main__":
         table_print(HI_task_set)
         start = 1
         num_check1 = 0
-        HI_count = 0
+
         while start:
+
             Increace_mark = 0
+            HI_count = 0
+
             if len(LO_task_set) == len(Dropped[0]):
                 print("All droppable tasks have already been dropped")
                 table_print(Dropped[0])
@@ -930,7 +933,7 @@ if __name__ == "__main__":
                 break
 
             for i in Test_tasks:
-                if i.execution_time_LO == 20 * i.execution_time_HI:
+                if i.execution_time_LO == i.execution_time_HI:
                     num_check1 += 1
 
             if num_check1 == len(HI_task_set):
@@ -958,16 +961,16 @@ if __name__ == "__main__":
                     print("+++++++++++++++ task", task.task, "+++++++++++++++++++")
                     response_timeMC, sati_HI = response_time_HI_SA(task, Test_tasks, Dropped, overrun)
                     if sati_HI == 1:
+                        Increace_mark = 0
                         break
                     elif sati_HI == 0:
                         Increace_mark = 1
                         HI_count += 1
-
+                        # start = 0
                         print(HI_count)
                         print("The dropping task test of HI task:", task.task, "is finished", '\n')
-                        print("Increase the overrun")
 
-            if Increace_mark == 1:
+            if Increace_mark == 1 and HI_count == len(HI_task_set):
                 print("Increase the overrun")
                 start = 0
 

@@ -124,7 +124,7 @@ def parameters_initialisation(dict):
         # print("C: ", C)
         # print("W: ", W)
 
-        print("ET", T)
+        print("T", T)
 
 
 

@@ -1,17 +1,18 @@
-import pandas as pd
+import copy
+import os
+import random
+import sys
+from random import choice
+
+import networkx as nx
 import numpy as np
-from pgmpy.models import BayesianNetwork
+import pandas as pd
 from pgmpy.factors.discrete import TabularCPD
 from pgmpy.inference import VariableElimination
-from pgmpy.estimators import TreeSearch
-from pgmpy.inference import CausalInference
-from pgmpy.factors.discrete import JointProbabilityDistribution
-import networkx as nx
-import random
-from random import choice
-import os, sys
+from pgmpy.models import BayesianNetwork
 from prettytable import PrettyTable
-import copy
+
+from RTA_priority_definition import response_time_calculation_LO, recursive_LO, recursive_HI, response_time_calculation_HI,response_time_calculation_HI_MC, recursive_HI_MC, response_time_Mode_change, schedulability_check, priority_recursive
 
 class HiddenPrints:
     def __enter__(self):
@@ -124,7 +125,7 @@ def parameters_initialisation(dict):
         # print("C: ", C)
         # print("W: ", W)
 
-        print("T", T)
+        print("ET", T)
 
 
 
@@ -741,3 +742,71 @@ if __name__ == "__main__":
                 task.importance = 0
 
     table_print(Tasks_original)
+
+    print('\n', "######### Priority definition ##########",'\n')
+    print("######### Standard OPA ##########", '\n')
+
+    Tasks_PR_OPA = copy.deepcopy(Tasks_original)
+
+    priority_level = len(Tasks_PR_OPA)
+    unschedulable = []
+    for i in Tasks_PR_OPA:
+        # i.priority = -1
+        unschedulable.append(i.task)
+
+    priority_temp = priority_level
+
+    conti  = 1
+
+    while conti:
+        print("*********************")
+        num = 0
+        # table_print(Test_tasks)
+        for i in Tasks_PR_OPA:
+            if i.priority == -1:
+                num +=1
+        if num == 0:
+            break
+        else:
+            print("The allocated priority level:", priority_temp)
+            priority_temp = priority_recursive(priority_temp, Tasks_PR_OPA)
+
+    # print('\n', "Final result:",'\n')
+    # table_print(Tasks_PR_OPA)
+
+    print('\n', "######### Importance OPA ##########", '\n')
+
+    Tasks_PR_OPA_IP = copy.deepcopy(Tasks_original)
+
+    Tasks_PR_OPA_IP = sorted(Tasks_PR_OPA_IP, key=lambda Task: Task.importance, reverse=True)
+    table_print(Tasks_PR_OPA_IP)
+
+    priority_level = len(Tasks_PR_OPA_IP)
+    unschedulable = []
+    for i in Tasks_PR_OPA_IP:
+        # i.priority = -1
+        unschedulable.append(i.task)
+
+    priority_temp = priority_level
+
+    conti = 1
+
+    while conti:
+        print("*********************")
+        num = 0
+        # table_print(Test_tasks)
+        for i in Tasks_PR_OPA_IP:
+            if i.priority == -1:
+                num += 1
+        if num == 0:
+            break
+        else:
+            print("The allocated priority level:", priority_temp)
+            priority_temp = priority_recursive(priority_temp, Tasks_PR_OPA_IP)
+
+    print('\n', "Final result:", '\n')
+    Tasks_PR_OPA = sorted(Tasks_PR_OPA, key=lambda Task: Task.importance, reverse=True)
+    print("===== Standard OPA Priority definition ======")
+    table_print(Tasks_PR_OPA)
+    print('\n', "===== OPA Priority definition considering importance level ======")
+    table_print(Tasks_PR_OPA_IP)

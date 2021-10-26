@@ -131,10 +131,18 @@ def response_time_HI_SA(task, Test_tasks, Dropped, overrun):
 
     if worst_case > task.deadline:
 
-        print("If overrun of Task", task.task, "happens. The mode change time point is:", MC_candidate[index - 1],
-              "with response time", response_time_set[index - 1])
+        if len(response_time_set) == 1:
 
-        upper_bound = response_time_set[index - 1]
+            switch_point = 0
+            upper_bound = 0
+        else:
+            switch_point = MC_candidate[index - 1]
+            upper_bound = response_time_set[index - 1]
+
+        print("If overrun of Task", task.task, "happens. The mode change time point is:", switch_point,
+              "with response time", upper_bound)
+
+
 
         print("the execution time of checked task is ", task.execution_time_LO)
         # print(response_time_set)
@@ -171,10 +179,11 @@ def response_time_HI_SA(task, Test_tasks, Dropped, overrun):
             with HiddenPrints():
                 test_rp = SA_response_time_calculation_LO(test, Test_tasks, Dropped)
 
+
             print("@@@@@@fadfafw@", response_time_LO_task, test_rp)
             print("updated execution_time_LO", test.execution_time_LO)
             Dropped[0].append(LO_task_set[temp_index])
-            Dropped[1].append(upper_bound)  # system switch point
+            Dropped[1].append(switch_point)  # system switch point
             Dropped[2].append(test_rp)  # lower bound
             Dropped[3].append(overrun)
             Dropped[4].append((test.execution_time_LO, task.execution_time_LO))
@@ -471,18 +480,21 @@ if __name__ == "__main__":
 
     print('\n', "++++++++++++++++++++++++++++++++++++++++++++++++++")
     print("Final result:")
+
+    print("The dropped task:")
     table_print(Dropped[0])
-    print("Dropping time point:", '\n', Dropped[2])
+    print("System switch point:", '\n', Dropped[1])
+    print("The interference bound of dropped task:", '\n', Dropped[2])
     print("System overrun:", '\n', Dropped[3])
     print("monitored HI tasks:", '\n', Dropped[5])
 
     for i in range(len(Dropped[0])):
         if Dropped[2][i] != 0:
-            print('\n', "if HI task", Dropped[5][i], " with LO_execution time", Dropped[4][i][0], "(", Dropped[4][i][1], ")" 
-                  "can not finish its execution after", Dropped[2][i], ".",
-                  "It is allowed to be executed continuously.", '\n'
-                  , " However, if the response time of it attempts to be larger than", Dropped[1][i], '.',
-                  "LO task", Dropped[0][i].task, "should be dropped directly")
+            print('\n', "if HI task", Dropped[5][i], " with LO_execution time", Dropped[4][i][0],
+                  "can not finish its execution after", Dropped[2][i], ".", '\n',
+                  "LO Task", Dropped[0][i].task, "need to be dropped.","\n"
+                  " However, the system switch point can not later than", Dropped[1][i],
+                  ", after the release of task with overrun(", Dropped[3][i], ") ")
         else:
             print('\n', "Once overrun", Dropped[3][i], "happens. LO Task", Dropped[0][i].task,
                   "need to be dropped directly")

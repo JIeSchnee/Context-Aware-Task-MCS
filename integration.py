@@ -12,8 +12,8 @@ from pgmpy.inference import VariableElimination
 from pgmpy.models import BayesianNetwork
 from prettytable import PrettyTable
 
-from RTA_priority_definition import response_time_calculation_LO, recursive_LO, recursive_HI, response_time_calculation_HI,response_time_calculation_HI_MC, recursive_HI_MC, response_time_Mode_change, schedulability_check, priority_recursive
-from Sensitivity_Analysis import SA_response_time_calculation_LO, SA_recursive_LO, response_time_HI_SA, response_time_calculation_HI_SA, recursive_HI_SA, Sensitivity_Analysis_LO
+from RTA_priority_definition import priority_recursive
+from Sensitivity_Analysis import response_time_HI_SA, Sensitivity_Analysis_LO
 
 
 class HiddenPrints:

@@ -57,6 +57,8 @@ def response_time_calculation_LO(task, task_set):
     while k:
         response_time = recursive_LO(response_time, hp_tasks, task)
         print("response time", response_time)
+        if response_time > task.deadline:
+            break
         if response_time != rep:
             rep = response_time
         else:
@@ -68,7 +70,7 @@ def recursive_LO(response_time, hp_tasks, task):
     temp = 0
     execution_time = task.execution_time_LO
     for j in hp_tasks:
-        temp += math.ceil(response_time // j.period) * j.execution_time_LO
+        temp += math.ceil(response_time / j.period) * j.execution_time_LO
         print("temp", temp)
 
     response_time = execution_time + temp
@@ -105,6 +107,8 @@ def response_time_calculation_HI(task, task_set):
     while k:
         response_time = recursive_HI(response_time, hp_tasks, task)
         print("response time", response_time)
+        if response_time > task.deadline:
+            break
         if response_time != rep:
             rep = response_time
         else:
@@ -128,6 +132,8 @@ def response_time_calculation_HI_MC(task, task_set, time_point):
     while k:
         response_time = recursive_HI_MC(response_time, hp_tasks, task, require, MC_time_point)
         print("response time", response_time)
+        if response_time > task.deadline:
+            break
         if response_time != rep:
             rep = response_time
         else:
@@ -142,10 +148,10 @@ def recursive_HI_MC(response_time, hp_tasks, task, require, MC_time_point):
     execution_time = task.execution_time_HI
     for j in hp_tasks:
         if j.criticality == "LO":
-            temp0 += (math.floor(MC_time_point // j.period) + 1) * j.execution_time_LO
+            temp0 += (math.floor(MC_time_point / j.period) + 1) * j.execution_time_LO
         else:
-            temp1 += math.ceil(MC_time_point // j.period) * j.execution_time_LO + math.ceil(
-                (response_time - MC_time_point) // j.period) * (j.execution_time_HI - j.execution_time_LO)
+            temp1 += math.ceil(MC_time_point / j.period) * j.execution_time_LO + math.ceil(
+                (response_time - MC_time_point) / j.period) * (j.execution_time_HI - j.execution_time_LO)
     temp = temp0 + temp1
     print("temp", temp)
 
@@ -212,7 +218,7 @@ def schedulability_check(task, Test_tasks):
 
 
 def priority_recursive(priority_temp, Test_tasks):
-
+    count = 0
     for i in range(len(Test_tasks)):
 
         if Test_tasks[i].priority != -1:
@@ -247,10 +253,11 @@ def priority_recursive(priority_temp, Test_tasks):
             print("The task is unschedulable with the priority level ")
             Test_tasks[i].priority = -1
             table_print(Test_tasks)
+            count += 1
 
 
 
-    return priority_temp
+    return priority_temp, count
 
 if __name__ == "__main__":
 
@@ -326,14 +333,22 @@ if __name__ == "__main__":
         for i in Test_tasks:
             if i.priority == -1:
                 num +=1
+
         if num == 0:
+            print('\n', "Final result:", '\n')
+            table_print(Test_tasks)
             break
         else:
             print("The allocated priority level:", priority_temp)
-            priority_temp = priority_recursive(priority_temp, Test_tasks)
+            priority_temp, count = priority_recursive(priority_temp, Test_tasks)
+            print("farqfa", count)
 
-    print('\n', "Final result:",'\n')
-    table_print(Test_tasks)
+            if count == len(Test_tasks):
+                print("System unscheduled")
+                break
+
+
+
 
 
 

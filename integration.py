@@ -121,7 +121,7 @@ def parameters_initialisation(dict):
     for app in range(3):
         print("==========================")
         G, V, C, _, T, W = load_task(task_idx=app,
-                                  dag_base_folder="/home/jiezou/Documents/Context_aware MCS/dag-gen-rnd-master/data/data-multi-m4-u2.0/0/")
+                                  dag_base_folder="/home/jiezou/Documents/Context_aware MCS/dag-gen-rnd-master/data/data-multi-m4-u0.7/1/")
         # print("G: ", G)
         # print("V: ", V)
         # print("C: ", C)
@@ -651,7 +651,8 @@ if __name__ == "__main__":
     for i in Tasks_original:
         uti += i.execution_time_LO/i.period
 
-    print(uti)
+    print("System Utilisation", uti)
+
     # Appset_backpack = []
     # Appset = Appset_original
     # keynode = []
@@ -825,178 +826,178 @@ if __name__ == "__main__":
     # table_print(Tasks_PR_OPA_IP)
 
     #
-    #
-    # print('\n', "######### Sensitivity Analysis ##########",'\n')
-    #
-    # # for i in Tasks_PR_OPA:
-    # #     i.importance = random.randint(0,100)
-    #
-    # Test_tasks = copy.deepcopy(Tasks_PR_OPA)
-    # table_print(Test_tasks)
-    #
-    # Dropped_Task = []
-    # Dropped_Time_upperbound = []
-    # lower_bound = []
-    # system_overrun = []
-    # ex_time = []
-    # monitor_task = []
-    #
-    # Dropped = [Dropped_Task,
-    #            Dropped_Time_upperbound,
-    #            lower_bound,
-    #            system_overrun,
-    #            ex_time,
-    #            monitor_task]
-    #
-    # LO_task_set = []
-    # temp = []
-    # for j in Test_tasks:
-    #     if j.criticality == "LO":
-    #         LO_task_set.append(j)
-    #
-    # overrun_con = 1
-    # num_check = 0
-    #
-    # execution_time_LO_cp = []
-    # Name_cp = []
-    # for i in Test_tasks:
-    #     execution_time_LO_cp.append(i.execution_time_LO)
-    #     Name_cp.append(i.task)
-    #
-    # while 1:
-    #     print('\n', "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^", '\n')
-    #
-    #     if len(LO_task_set) == len(Dropped[0]):
-    #         print("All droppable tasks have already been dropped")
-    #         table_print(Dropped[0])
-    #         print(Dropped[1])
-    #         break
-    #
-    #     for i in Test_tasks:
-    #         if i.execution_time_LO == i.execution_time_HI:
-    #             num_check += 1
-    #
-    #     HI_task_set = []
-    #     for i in Test_tasks:
-    #         if i.criticality == "HI":
-    #             HI_task_set.append(i)
-    #
-    #     if num_check == len(HI_task_set):
-    #         print("All HI task can be executed no more than their HI bound ", '\n',
-    #               "(Not all Low tasks need to be dropped)")
-    #
-    #         table_print(Dropped[0])
-    #         print(Dropped[1])
-    #         break
-    #
-    #     overrun = 0.1 * overrun_con
-    #
-    #     for i in range(len(Test_tasks)):
-    #
-    #         if Test_tasks[i].criticality == 'HI':
-    #             # i.execution_time_LO = math.floor((1 + overrun) * i.execution_time_LO)
-    #             # i.execution_time_LO += 1
-    #             # print("before", Test_tasks[i].execution_time_LO)
-    #             # print(overrun)
-    #             Test_tasks[i].execution_time_LO = (1 + overrun) * execution_time_LO_cp[i]
-    #             if Test_tasks[i].execution_time_LO >= Test_tasks[i].execution_time_HI:
-    #                 Test_tasks[i].execution_time_LO = Test_tasks[i].execution_time_HI
-    #             # print("after", Test_tasks[i].execution_time_LO)
-    #
-    #     print("Current overrun:", overrun, '\n')
-    #     table_print(Test_tasks)
-    #     # print("Current overrun:", Test_tasks[0].execution_time_LO, '\n')
-    #     print("Already drooped tasks:")
-    #     table_print(Dropped[0])
-    #
-    #     print('\n', "---------- Sensitivity Analysis LO-------------")
-    #
-    #     sati = Sensitivity_Analysis_LO(Test_tasks, Dropped, overrun)
-    #     if sati == 1:
-    #         print("One Low task should be dropped once overrun happens")
-    #         table_print(Dropped[0])
-    #     else:
-    #         print("Continue to find out the discarded task")
-    #
-    #     print('\n', "---------- Sensitivity Analysis HI -------------")
-    #     print('\n', "Sensitivity_Analysis_LO", '\n')
-    #
-    #     table_print(HI_task_set)
-    #     start = 1
-    #     num_check1 = 0
-    #
-    #     while start:
-    #         print('\n', "++++++++++++++++ Restart +++++++++++++++++++")
-    #         table_print(Dropped[0])
-    #         print(Dropped[1])
-    #
-    #         Increace_mark = 0
-    #         HI_count = 0
-    #
-    #         if len(LO_task_set) == len(Dropped[0]):
-    #             print("All droppable tasks have already been dropped")
-    #             table_print(Dropped[0])
-    #             print(Dropped[1])
-    #             break
-    #
-    #         for i in Test_tasks:
-    #             if i.execution_time_LO == i.execution_time_HI:
-    #                 num_check1 += 1
-    #
-    #         if num_check1 == len(HI_task_set):
-    #             print("All droppable tasks have already been dropped"
-    #                   " and all HI task can be executed no more than their HI bound ", '\n',
-    #                   "(Not all Low tasks need to be dropped)")
-    #
-    #             table_print(Dropped[0])
-    #             print(Dropped[1])
-    #             break
-    #
-    #         for task in HI_task_set:
-    #             print("#########################################", '\n')
-    #             print("current tested HI task", task.task)
-    #             if HI_count > len(HI_task_set):
-    #                 sati_HI = 1
-    #                 break
-    #             else:
-    #                 print("Already dropped tasks")
-    #                 table_print(Dropped[0])
-    #                 # print(HI_count)
-    #                 print("+++++++++++++++ task", task.task, "+++++++++++++++++++")
-    #                 response_timeMC, sati_HI = response_time_HI_SA(task, Test_tasks, Dropped, overrun)
-    #                 if sati_HI == 1:
-    #                     Increace_mark = 0
-    #                     break
-    #                 elif sati_HI == 0:
-    #                     Increace_mark = 1
-    #                     HI_count += 1
-    #                     # start = 0
-    #                     print("The number of already tested HI tasks", HI_count)
-    #                     print("The dropping task test of HI task:", task.task, "is finished", '\n')
-    #
-    #         if Increace_mark == 1 and HI_count == len(HI_task_set):
-    #             print("Increase the overrun")
-    #             start = 0
-    #
-    #     overrun_con += 1
-    #
-    # print('\n', "++++++++++++++++++++++++++++++++++++++++++++++++++")
-    # print("Final result:")
-    #
-    # print("The dropped task:")
-    # table_print(Dropped[0])
-    # print("System switch point:", '\n', Dropped[1])
-    # print("The interference bound of dropped task:", '\n', Dropped[2])
-    # print("System overrun:", '\n', Dropped[3])
-    # print("monitored HI tasks:", '\n', Dropped[5])
-    #
-    # for i in range(len(Dropped[0])):
-    #     if Dropped[2][i] != 0:
-    #         print('\n', "if HI task", Dropped[5][i], " with LO_execution time", Dropped[4][i][0],
-    #               "can not finish its execution after", Dropped[2][i], ".", '\n',
-    #               "LO Task", Dropped[0][i].task, "need to be dropped.","\n"
-    #               " However, the system switch point can not later than", Dropped[1][i],
-    #               ", after the release of task with overrun(", Dropped[3][i], ") ")
-    #     else:
-    #         print('\n', "Once overrun", Dropped[3][i], "happens. LO Task", Dropped[0][i].task,
-    #               "need to be dropped directly")
+
+    print('\n', "######### Sensitivity Analysis ##########",'\n')
+
+    for i in Tasks_PR_OPA:
+        i.importance = random.randint(0,100)
+
+    Test_tasks = copy.deepcopy(Tasks_PR_OPA)
+    table_print(Test_tasks)
+
+    Dropped_Task = []
+    Dropped_Time_upperbound = []
+    lower_bound = []
+    system_overrun = []
+    ex_time = []
+    monitor_task = []
+
+    Dropped = [Dropped_Task,
+               Dropped_Time_upperbound,
+               lower_bound,
+               system_overrun,
+               ex_time,
+               monitor_task]
+
+    LO_task_set = []
+    temp = []
+    for j in Test_tasks:
+        if j.criticality == "LO":
+            LO_task_set.append(j)
+
+    overrun_con = 1
+    num_check = 0
+
+    execution_time_LO_cp = []
+    Name_cp = []
+    for i in Test_tasks:
+        execution_time_LO_cp.append(i.execution_time_LO)
+        Name_cp.append(i.task)
+
+    while 1:
+        print('\n', "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^", '\n')
+
+        if len(LO_task_set) == len(Dropped[0]):
+            print("All droppable tasks have already been dropped")
+            table_print(Dropped[0])
+            print(Dropped[1])
+            break
+
+        for i in Test_tasks:
+            if i.execution_time_LO == i.execution_time_HI:
+                num_check += 1
+
+        HI_task_set = []
+        for i in Test_tasks:
+            if i.criticality == "HI":
+                HI_task_set.append(i)
+
+        if num_check == len(HI_task_set):
+            print("All HI task can be executed no more than their HI bound ", '\n',
+                  "(Not all Low tasks need to be dropped)")
+
+            table_print(Dropped[0])
+            print(Dropped[1])
+            break
+
+        overrun = 0.1 * overrun_con
+
+        for i in range(len(Test_tasks)):
+
+            if Test_tasks[i].criticality == 'HI':
+                # i.execution_time_LO = math.floor((1 + overrun) * i.execution_time_LO)
+                # i.execution_time_LO += 1
+                # print("before", Test_tasks[i].execution_time_LO)
+                # print(overrun)
+                Test_tasks[i].execution_time_LO = (1 + overrun) * execution_time_LO_cp[i]
+                if Test_tasks[i].execution_time_LO >= Test_tasks[i].execution_time_HI:
+                    Test_tasks[i].execution_time_LO = Test_tasks[i].execution_time_HI
+                # print("after", Test_tasks[i].execution_time_LO)
+
+        print("Current overrun:", overrun, '\n')
+        table_print(Test_tasks)
+        # print("Current overrun:", Test_tasks[0].execution_time_LO, '\n')
+        print("Already drooped tasks:")
+        table_print(Dropped[0])
+
+        print('\n', "---------- Sensitivity Analysis LO-------------")
+
+        sati = Sensitivity_Analysis_LO(Test_tasks, Dropped, overrun)
+        if sati == 1:
+            print("One Low task should be dropped once overrun happens")
+            table_print(Dropped[0])
+        else:
+            print("Continue to find out the discarded task")
+
+        print('\n', "---------- Sensitivity Analysis HI -------------")
+        print('\n', "Sensitivity_Analysis_LO", '\n')
+
+        table_print(HI_task_set)
+        start = 1
+        num_check1 = 0
+
+        while start:
+            print('\n', "++++++++++++++++ Restart +++++++++++++++++++")
+            table_print(Dropped[0])
+            print(Dropped[1])
+
+            Increace_mark = 0
+            HI_count = 0
+
+            if len(LO_task_set) == len(Dropped[0]):
+                print("All droppable tasks have already been dropped")
+                table_print(Dropped[0])
+                print(Dropped[1])
+                break
+
+            for i in Test_tasks:
+                if i.execution_time_LO == i.execution_time_HI:
+                    num_check1 += 1
+
+            if num_check1 == len(HI_task_set):
+                print("All droppable tasks have already been dropped"
+                      " and all HI task can be executed no more than their HI bound ", '\n',
+                      "(Not all Low tasks need to be dropped)")
+
+                table_print(Dropped[0])
+                print(Dropped[1])
+                break
+
+            for task in HI_task_set:
+                print("#########################################", '\n')
+                print("current tested HI task", task.task)
+                if HI_count > len(HI_task_set):
+                    sati_HI = 1
+                    break
+                else:
+                    print("Already dropped tasks")
+                    table_print(Dropped[0])
+                    # print(HI_count)
+                    print("+++++++++++++++ task", task.task, "+++++++++++++++++++")
+                    response_timeMC, sati_HI = response_time_HI_SA(task, Test_tasks, Dropped, overrun)
+                    if sati_HI == 1:
+                        Increace_mark = 0
+                        break
+                    elif sati_HI == 0:
+                        Increace_mark = 1
+                        HI_count += 1
+                        # start = 0
+                        print("The number of already tested HI tasks", HI_count)
+                        print("The dropping task test of HI task:", task.task, "is finished", '\n')
+
+            if Increace_mark == 1 and HI_count == len(HI_task_set):
+                print("Increase the overrun")
+                start = 0
+
+        overrun_con += 1
+
+    print('\n', "++++++++++++++++++++++++++++++++++++++++++++++++++")
+    print("Final result:")
+
+    print("The dropped task:")
+    table_print(Dropped[0])
+    print("System switch point:", '\n', Dropped[1])
+    print("The interference bound of dropped task:", '\n', Dropped[2])
+    print("System overrun:", '\n', Dropped[3])
+
+
+    for i in range(len(Dropped[0])):
+        if Dropped[2][i] != 0:
+            print('\n', "if HI task", Dropped[5][i], " with LO_execution time", Dropped[4][i][0],
+                  "can not finish its execution after", Dropped[2][i], ".", '\n',
+                  "LO Task", Dropped[0][i].task, "need to be dropped.","\n"
+                  " However, the system switch point can not later than", Dropped[1][i],
+                  ", after the release of task with overrun(", Dropped[3][i], ") ")
+        else:
+            print('\n', "Once overrun", Dropped[3][i], "happens. LO Task", Dropped[0][i].task,
+                  "need to be dropped directly")

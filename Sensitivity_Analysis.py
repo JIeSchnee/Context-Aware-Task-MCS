@@ -64,6 +64,8 @@ def SA_response_time_calculation_LO(task, task_set, Dropped):
     while k:
         response_time = SA_recursive_LO(response_time, hp_tasks, task, Dropped)
         print("response time", response_time)
+        if response_time > task.deadline:
+            break
         if response_time != rep:
             rep = response_time
         else:
@@ -201,6 +203,8 @@ def response_time_calculation_HI_SA(task, task_set, time_point, Dropped):
     while k:
         response_time = recursive_HI_SA(response_time, hp_tasks, task, MC_time_point, Dropped)
         print("response time", response_time)
+        if response_time > task.deadline:
+            break
         if response_time != rep:
             rep = response_time
         else:
@@ -295,8 +299,8 @@ if __name__ == "__main__":
     Test_tasks.append(task3)
     task4 = Task(4, 5, 5, 1, 0, 2, 1, "LO")
     Test_tasks.append(task4)
-    # task5 = Task(5, 30, 30, 1, 5, 5, 1, "HI")
-    # Test_tasks.append(task5)
+    task5 = Task(5, 30, 30, 1, 5, 5, 1, "HI")
+    Test_tasks.append(task5)
 
     print("---------Tasks in the system------------")
     table_print(Test_tasks)
@@ -396,10 +400,12 @@ if __name__ == "__main__":
         table_print(HI_task_set)
         start = 1
         num_check1 = 0
-        HI_count = 0
 
         while start:
+
             Increace_mark = 0
+            HI_count = 0
+
             if len(LO_task_set) == len(Dropped[0]):
                 print("All droppable tasks have already been dropped")
                 table_print(Dropped[0])
@@ -435,6 +441,7 @@ if __name__ == "__main__":
                     print("+++++++++++++++ task", task.task, "+++++++++++++++++++")
                     response_timeMC, sati_HI = response_time_HI_SA(task, Test_tasks, Dropped, overrun)
                     if sati_HI == 1:
+                        Increace_mark = 0
                         break
                     elif sati_HI == 0:
                         Increace_mark = 1
@@ -443,7 +450,7 @@ if __name__ == "__main__":
                         print(HI_count)
                         print("The dropping task test of HI task:", task.task, "is finished", '\n')
 
-            if Increace_mark == 1:
+            if Increace_mark == 1 and HI_count == len(HI_task_set):
                 print("Increase the overrun")
                 start = 0
 

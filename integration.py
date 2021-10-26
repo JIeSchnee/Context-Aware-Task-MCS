@@ -47,7 +47,7 @@ class APP:
         self.keynode = keynode
 
 
-def load_task(task_idx, dag_base_folder="/home/jiezou/Documents/Context_aware MCS/dag-gen-rnd/data"):
+def load_task(task_idx, dag_base_folder="/home/jiezou/Documents/Context_aware MCS/dag-gen-rnd-master/data"):
     # << load DAG task <<
     dag_task_file = dag_base_folder + "Tau_{:d}.gpickle".format(task_idx)
 
@@ -58,6 +58,9 @@ def load_task(task_idx, dag_base_folder="/home/jiezou/Documents/Context_aware MC
     G_dict = {}
     C_dict = {}
     V_array = []
+    T = G.graph["T"]
+
+
     max_key = 0
     for u, v, weight in G.edges(data='label'):
         if u not in G_dict:
@@ -87,7 +90,7 @@ def load_task(task_idx, dag_base_folder="/home/jiezou/Documents/Context_aware MC
     W = sum(C_array)
 
     # >> end of load DAG task >>
-    return G_dict, V_array, C_dict, C_array, W
+    return G_dict, V_array, C_dict, C_array, T, W
 
 
 def dictionary_definition():
@@ -110,15 +113,19 @@ def parameters_initialisation(dict):
     HI_group = []
     Execution_times = {}
     app_dependency_node = []
+    period = {}
 
     for app in range(3):
         print("==========================")
-        G, V, C, _, W = load_task(task_idx=app,
-                                  dag_base_folder="/home/jiezou/Documents/Context_aware MCS/dag-gen-rnd/data/data-multi-m4-u2.0/4/")
+        G, V, C, _, T, W = load_task(task_idx=app,
+                                  dag_base_folder="/home/jiezou/Documents/Context_aware MCS/dag-gen-rnd-master/data/data-multi-m4-u2.0/0/")
         # print("G: ", G)
         # print("V: ", V)
         # print("C: ", C)
         # print("W: ", W)
+
+        print("ET", T)
+
 
 
         edges = []
@@ -130,9 +137,11 @@ def parameters_initialisation(dict):
             V[i] += bias
 
         tempKey = {}
+        temp_priod = {}
         for i in C.keys():
             y = i + bias
             tempKey[dict[y]] = C[i]
+            temp_priod[dict[y]] = T
             # print(y)
 
         # print("faefafgaa", tempKey)
@@ -141,6 +150,9 @@ def parameters_initialisation(dict):
 
         for i in tempKey:
             Execution_times[i] = tempKey[i]
+
+        for i in temp_priod:
+            period[i] = temp_priod[i]
 
         # Generate the relationship
         # print("V: ", V)
@@ -221,7 +233,7 @@ def parameters_initialisation(dict):
         print("Application ID:", i.app_name, '\n', "The droppable tasks in the application", i.taskset, '\n',
               "The keynode of the application", i.keynode)
 
-    return network_edges, network_tasks, Appset, HI_group, Execution_times
+    return network_edges, network_tasks, Appset, HI_group, Execution_times, period
 
 
 def value_generation(network_tasks):
@@ -230,7 +242,7 @@ def value_generation(network_tasks):
     return values
 
 
-def initialisation(network_edges, network_tasks, Appset, HI_group, values, Execution_times):
+def initialisation(network_edges, network_tasks, Appset, HI_group, values, Execution_times, period):
     model = BayesianNetwork(network_edges)
     # values = pd.DataFrame(np.random.randint(low=0, high=2, size=(100, len(network_tasks))),
     #                       columns=network_tasks)
@@ -238,7 +250,7 @@ def initialisation(network_edges, network_tasks, Appset, HI_group, values, Execu
     model.get_cpds()
     dict = dictionary_definition()
     Tasks = []
-    # print("fdffaf", Execution_times)
+    print("fdffaf", period)
 
     for i in network_tasks:
         if i in HI_group:
@@ -256,8 +268,13 @@ def initialisation(network_edges, network_tasks, Appset, HI_group, values, Execu
                     execution_time_LO = execution_base
                     execution_time_HI = 0
 
+        for l in period.keys():
+            if i == l:
+                T_period = period[l]
+                T_deadline = period[l]
 
-        Tasks.append(Task(model.get_cpds(i).variable, model.get_cpds(i), criticality, 0, 0,
+
+        Tasks.append(Task(model.get_cpds(i).variable, model.get_cpds(i), criticality, T_deadline, T_period,
                           execution_time_LO, execution_time_HI, -1, -1))
 
     return Tasks, model, Appset, HI_group
@@ -620,10 +637,10 @@ if __name__ == "__main__":
     App_drop_task_order = []
     tasks_name_index = []
     dict = dictionary_definition()
-    network_edges, network_tasks, Appset, HI_group, Execution_times = parameters_initialisation(dict)
+    network_edges, network_tasks, Appset, HI_group, Execution_times, period = parameters_initialisation(dict)
     values = value_generation(network_tasks)
     Tasks_original, model_original, Appset_original, HI_group = initialisation(network_edges, network_tasks, Appset,
-                                                                               HI_group, values, Execution_times)
+                                                                               HI_group, values, Execution_times, period)
 
     table_print(Tasks_original)
 

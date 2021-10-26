@@ -84,10 +84,10 @@ def SA_recursive_LO(response_time, hp_tasks, task, Dropped):
             else:
                 time_point = response_time
             print("interference from dropped task", time_point, j.period, j.execution_time_LO)
-            temp0 += (math.floor(time_point // j.period) + 1) * j.execution_time_LO
+            temp0 += (math.floor(time_point / j.period) + 1) * j.execution_time_LO
         else:
             print("interference from HI task with higher priority", response_time, j.period, j.execution_time_LO)
-            temp1 += math.ceil(response_time // j.period) * j.execution_time_LO
+            temp1 += math.ceil(response_time / j.period) * j.execution_time_LO
 
         temp = temp0 + temp1
         print("temp", temp)
@@ -225,14 +225,14 @@ def recursive_HI_SA(response_time, hp_tasks, task, MC_time_point, Dropped):
                 else:
                     time_point = response_time
                 print("The dropped time point", time_point)
-                temp0 += (math.floor(time_point // j.period) + 1) * j.execution_time_LO
+                temp0 += (math.floor(time_point / j.period) + 1) * j.execution_time_LO
             else:
                 print("interference from un-dropped task", j.task)
-                temp1 += (math.floor(MC_time_point // j.period) + 1) * j.execution_time_LO
+                temp1 += (math.floor(MC_time_point / j.period) + 1) * j.execution_time_LO
         else:
             print("interference from HI task with higher priority", j.task)
-            temp2 += math.ceil(MC_time_point // j.period) * j.execution_time_LO + math.ceil(
-                (response_time - MC_time_point) // j.period) * (j.execution_time_HI - j.execution_time_LO)
+            temp2 += math.ceil(MC_time_point / j.period) * j.execution_time_LO + math.ceil(
+                (response_time - MC_time_point) / j.period) * (j.execution_time_HI - j.execution_time_LO)
 
     temp = temp0 + temp1 + temp2
     print("temp", temp)
@@ -397,8 +397,9 @@ if __name__ == "__main__":
         start = 1
         num_check1 = 0
         HI_count = 0
-        while start:
 
+        while start:
+            Increace_mark = 0
             if len(LO_task_set) == len(Dropped[0]):
                 print("All droppable tasks have already been dropped")
                 table_print(Dropped[0])
@@ -438,6 +439,7 @@ if __name__ == "__main__":
                     elif sati_HI == 0:
                         Increace_mark = 1
                         HI_count += 1
+                        # start = 0
                         print(HI_count)
                         print("The dropping task test of HI task:", task.task, "is finished", '\n')
 

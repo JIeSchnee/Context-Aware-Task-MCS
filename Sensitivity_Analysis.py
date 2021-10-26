@@ -231,11 +231,21 @@ def recursive_HI_SA(response_time, hp_tasks, task, MC_time_point, Dropped):
                     time_point = Dropped[2][index]
                 else:
                     time_point = response_time
-                print("The dropped time point", time_point)
-                temp0 += (math.floor(time_point / j.period) + 1) * j.execution_time_LO
+
+                if time_point >= MC_time_point:
+                    time_point1 = MC_time_point
+                else:
+                    time_point1 = time_point
+
+                print("The dropped time point", time_point1)
+                temp0 += (math.floor(time_point1 / j.period) + 1) * j.execution_time_LO
             else:
+                if response_time >= MC_time_point:
+                    time_point2 = MC_time_point
+                else:
+                    time_point2 = response_time
                 print("interference from un-dropped task", j.task)
-                temp1 += (math.floor(MC_time_point / j.period) + 1) * j.execution_time_LO
+                temp1 += (math.floor(time_point2 / j.period) + 1) * j.execution_time_LO
         else:
             print("interference from HI task with higher priority", j.task)
             temp2 += math.ceil(MC_time_point / j.period) * j.execution_time_LO + math.ceil(

@@ -81,8 +81,9 @@ def SA_recursive_LO(response_time, hp_tasks, task, Dropped):
     for j in hp_tasks:
         if j in Dropped[0]:
             index = Dropped[0].index(j)
-            if response_time >= Dropped[1][index]:
-                time_point  = Dropped[1][index]
+            print("fafa",index, Dropped[2][index])
+            if response_time >= Dropped[2][index]:
+                time_point = Dropped[2][index]
             else:
                 time_point = response_time
             print("interference from dropped task", time_point, j.period, j.execution_time_LO)
@@ -100,6 +101,7 @@ def SA_recursive_LO(response_time, hp_tasks, task, Dropped):
 
 
 def response_time_HI_SA(task, Test_tasks, Dropped, overrun):
+
     print("get LO response time")
     response_time_LO_task = SA_response_time_calculation_LO(task, Test_tasks, Dropped)
     print("the LO MODE response time:", response_time_LO_task)
@@ -107,7 +109,7 @@ def response_time_HI_SA(task, Test_tasks, Dropped, overrun):
     response_time_set = []
     MC_candidate = []
 
-    for i in range(math.floor(response_time_LO_task)):
+    for i in range(math.ceil(response_time_LO_task)):
         print("+++++++++++++++++++++++++++++++++++++")
         s = i
         print("tested mode change time point:", s)
@@ -117,26 +119,23 @@ def response_time_HI_SA(task, Test_tasks, Dropped, overrun):
         response_time_set.append(response_time_HI_task)
         MC_candidate.append(s)
 
+        if response_time_HI_task > task.deadline:
+            break
+
     print("+++++++++++++++++++++++++++++++++++++", '\n')
+    print("yuhkhajkghfj", response_time_set, "Task", task.task)
 
     worst_case = max(response_time_set)
     index = response_time_set.index(worst_case)
     # print("index", index)
-    print("The mode change time point:", MC_candidate[index], "with worst case response time:", worst_case)
 
     if worst_case > task.deadline:
 
-        for i in range(len(response_time_set)):
-            if response_time_set[i] >= task.deadline:
-                response = response_time_set[i]
-                if response == task.deadline:
-                    upper_bound = response
-                else:
-                    upper_bound = response_time_set[i - 1]
-                time_pont = MC_candidate[i]
-                break
+        print("If overrun of Task", task.task, "happens. The mode change time point is:", MC_candidate[index - 1],
+              "with response time", response_time_set[index - 1])
 
-        print("we need to drop task with the lowest importance value at time point s ", time_pont, '\n')
+        upper_bound = response_time_set[index - 1]
+
         print("the execution time of checked task is ", task.execution_time_LO)
         # print(response_time_set)
         print("Already dropped tasks")
@@ -158,11 +157,11 @@ def response_time_HI_SA(task, Test_tasks, Dropped, overrun):
                         # print(i.task)
                         LO_task_set.append(i)
                         temp.append(i.importance)
-
+            print("not dropped LO tasks")
             table_print(LO_task_set)
             temp_index = temp.index(max(temp))
 
-            print("The latest dropped task", LO_task_set[temp_index].task)
+            print("selected LO task, which should be dropped now:", LO_task_set[temp_index].task)
             # print(task.execution_time_LO)
             # print(overrun)
 
@@ -171,10 +170,11 @@ def response_time_HI_SA(task, Test_tasks, Dropped, overrun):
             test.execution_time_LO = original * (1 + (overrun-0.1))
             with HiddenPrints():
                 test_rp = SA_response_time_calculation_LO(test, Test_tasks, Dropped)
-            # print("@@@@@@@", time_pont, test_rp)
+
+            print("@@@@@@fadfafw@", response_time_LO_task, test_rp)
             print("updated execution_time_LO", test.execution_time_LO)
             Dropped[0].append(LO_task_set[temp_index])
-            Dropped[1].append(upper_bound)  # upperbound
+            Dropped[1].append(upper_bound)  # system switch point
             Dropped[2].append(test_rp)  # lower bound
             Dropped[3].append(overrun)
             Dropped[4].append((test.execution_time_LO, task.execution_time_LO))
@@ -204,6 +204,7 @@ def response_time_calculation_HI_SA(task, task_set, time_point, Dropped):
         response_time = recursive_HI_SA(response_time, hp_tasks, task, MC_time_point, Dropped)
         print("response time", response_time)
         if response_time > task.deadline:
+            print("@@@@@@@@@@@@@@@@@fafafaf")
             break
         if response_time != rep:
             rep = response_time
@@ -218,14 +219,16 @@ def recursive_HI_SA(response_time, hp_tasks, task, MC_time_point, Dropped):
     temp1 = 0
     temp2 = 0
     execution_time = task.execution_time_HI
+    print("re", task.task, response_time)
 
     for j in hp_tasks:
         if j.criticality == "LO":
             if j in Dropped[0]:
                 print("interference from dropped task:", j.task)
                 index = Dropped[0].index(j)
-                if response_time >= Dropped[1][index]:
-                    time_point = Dropped[1][index]
+                print("tjkjidhuig", index, Dropped[2][index])
+                if response_time >= Dropped[2][index]:
+                    time_point = Dropped[2][index]
                 else:
                     time_point = response_time
                 print("The dropped time point", time_point)
@@ -402,6 +405,9 @@ if __name__ == "__main__":
         num_check1 = 0
 
         while start:
+            print('\n', "++++++++++++++++ Restart +++++++++++++++++++")
+            table_print(Dropped[0])
+            print(Dropped[1])
 
             Increace_mark = 0
             HI_count = 0
@@ -425,16 +431,13 @@ if __name__ == "__main__":
                 print(Dropped[1])
                 break
 
-            print(" ++++++++++++++++ Restart +++++++++++++++++++")
-            table_print(Dropped[0])
-            print(Dropped[1])
-
             for task in HI_task_set:
+                print("#########################################", '\n')
+                print("current tested HI task", task.task)
                 if HI_count > len(HI_task_set):
                     sati_HI = 1
                     break
                 else:
-                    print("#########################################", '\n')
                     print("Already dropped tasks")
                     table_print(Dropped[0])
                     # print(HI_count)
@@ -447,7 +450,7 @@ if __name__ == "__main__":
                         Increace_mark = 1
                         HI_count += 1
                         # start = 0
-                        print(HI_count)
+                        print("The number of already tested HI tasks", HI_count)
                         print("The dropping task test of HI task:", task.task, "is finished", '\n')
 
             if Increace_mark == 1 and HI_count == len(HI_task_set):
@@ -459,7 +462,7 @@ if __name__ == "__main__":
     print('\n', "++++++++++++++++++++++++++++++++++++++++++++++++++")
     print("Final result:")
     table_print(Dropped[0])
-    print("Dropping time point:", '\n', Dropped[1])
+    print("Dropping time point:", '\n', Dropped[2])
     print("System overrun:", '\n', Dropped[3])
     print("monitored HI tasks:", '\n', Dropped[5])
 

@@ -121,7 +121,7 @@ def parameters_initialisation(dict):
     for app in range(3):
         print("==========================")
         G, V, C, _, T, W = load_task(task_idx=app,
-                                  dag_base_folder="/home/jiezou/Documents/Context_aware MCS/dag-gen-rnd-master/data/data-multi-m4-u0.7/1/")
+                                  dag_base_folder="/home/jiezou/Documents/Context_aware MCS/dag-gen-rnd-master/data/data-multi-m4-u0.7/0/")
         # print("G: ", G)
         # print("V: ", V)
         # print("C: ", C)
@@ -634,206 +634,10 @@ def table_print(tasks):
              i.priority, i.importance, i.criticality])
     print(table)
 
-if __name__ == "__main__":
 
-    App_drop_order = []
-    App_drop_task_order = []
-    tasks_name_index = []
-    dict = dictionary_definition()
-    network_edges, network_tasks, Appset, HI_group, Execution_times, period = parameters_initialisation(dict)
-    values = value_generation(network_tasks)
-    Tasks_original, model_original, Appset_original, HI_group = initialisation(network_edges, network_tasks, Appset,
-                                                                               HI_group, values, Execution_times, period)
+def Sensitivity_Analysis(Test_tasks):
+    # in crease the overrun of HI tasks each time by 10%
 
-    table_print(Tasks_original)
-
-    uti = 0
-    for i in Tasks_original:
-        uti += i.execution_time_LO/i.period
-
-    print("System Utilisation", uti)
-
-    # Appset_backpack = []
-    # Appset = Appset_original
-    # keynode = []
-    # for t in Appset:
-    #     keynode.append(t.keynode)
-    #     Appset_backpack.append(t)
-    #     # print("GGGGGGG", t.taskset)
-    #
-    # Appset_task = copy.deepcopy(Appset_original)
-    #
-    # for j in Tasks_original:
-    #     tasks_name_index.append(j.task)
-    # # print("tasks_name_index", tasks_name_index)
-    # model, Tasks = model_task_copy(model_original, tasks_name_index, HI_group, Tasks_original)
-    #
-    # print("--------------------------------------------------------", '\n')
-    # print("--- Application discarding order ---", '\n')
-    # print("--------------------------------------------------------", '\n')
-    #
-    # while len(Appset) > 1:
-    #     model, Tasks, Appset, Dropped_APP = Application_drop_and_update(Tasks, model, Appset, HI_group, keynode)
-    #     App_drop_order.append(Dropped_APP)
-    #
-    #     # for i in Tasks:
-    #     #     print(i.task)
-    #
-    # for i in Appset:
-    #     # print(i.app_name)
-    #     App_drop_order.append(i.app_name)
-    #
-    # print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++", '\n')
-    # print("Application discarding order:", App_drop_order)
-    # print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++", '\n')
-    #
-    # print("--------------------------------------------------------", '\n')
-    # print("--- Determine Task dropping order ---", '\n')
-    # print("--------------------------------------------------------", '\n')
-    # # Appset = []
-    # model, Tasks = model_task_copy(model_original, tasks_name_index, HI_group, Tasks_original)
-    # # print(model.nodes)
-    # Task_drop_order = []
-    # print(App_drop_order)
-    #
-    # for app in App_drop_order:
-    #     temp_order = []
-    #     print("================== App based Task Round =======================", '\n')
-    #     print("Start to determine the task dropping order of application:", app)
-    #     # with HiddenPrints():
-    #     #     Appset = parameters_initialisation(dict)[2]
-    #     Appset = Appset_task
-    #     APP_check = copy.deepcopy(Appset)
-    #     for t in Appset:
-    #         # print("TTTTT", t.taskset)
-    #         keynode.append(t.keynode)
-    #
-    #     Test_task_set = []
-    #     for t in Appset:
-    #         # print(t.app_name, t.taskset)
-    #         if t.app_name == app:
-    #             app_keynode = t.keynode
-    #             Test_task_set = t.taskset
-    #
-    #     print("Droppable tasks", Test_task_set, '\n', "Keynode:", app_keynode)
-    #     keynode = []
-    #     keynode.append(app_keynode)
-    #     check = copy.deepcopy(Test_task_set)
-    #
-    #     while Test_task_set:
-    #         model, Tasks, Appset, temp_order, Test_task_set = Task_drop_and_update(app, Tasks, model, Appset,
-    #                                                                                HI_group, Test_task_set, temp_order,
-    #                                                                                keynode)
-    #
-    #
-    #     Task_drop_order.append(temp_order)
-    #     # for tt in temp_order:
-    #     #     Task_drop_order.append(tt)
-    #
-    # print("++++++++++++++++++++++++++++++++++++++++++++++++++", '\n')
-    # print("Final result:")
-    # print("Application discarding order:", App_drop_order)
-    # print("Task degradation order", Task_drop_order, '\n')
-    # print("++++++++++++++++++++++++++++++++++++++++++++++++++", '\n')
-    # importance = []
-    # for i in Task_drop_order:
-    #     for j in i:
-    #         importance.append(j)
-    # # print(importance)
-    # # print(len(importance))
-    # # table_print(Tasks_original)
-    # for i in range(len(importance)):
-    #     for task in Tasks_original:
-    #         if task.task == importance[i]:
-    #             task.importance = len(importance) - i
-    #         elif task.importance == -1:
-    #             task.importance = 0
-    #
-    # table_print(Tasks_original)
-
-    print('\n', "######### Priority definition ##########",'\n')
-
-    print("######### Standard OPA ##########", '\n')
-
-    Tasks_PR_OPA = copy.deepcopy(Tasks_original)
-
-    priority_level = len(Tasks_PR_OPA)
-    unschedulable = []
-    for i in Tasks_PR_OPA:
-        # i.priority = -1
-        unschedulable.append(i.task)
-
-    priority_temp = priority_level
-
-    conti  = 1
-
-    while conti:
-        print("*********************")
-        num = 0
-        # table_print(Test_tasks)
-        for i in Tasks_PR_OPA:
-            if i.priority == -1:
-                num +=1
-        if num == 0:
-            break
-        else:
-            print("The allocated priority level:", priority_temp)
-            priority_temp, count = priority_recursive(priority_temp, Tasks_PR_OPA)
-            # print("ouikhjkh",count, len(Tasks_PR_OPA))
-
-            if count == len(Tasks_PR_OPA):
-                print("System unscheduled")
-                break
-
-    # # print('\n', "Final result:",'\n')
-    # # table_print(Tasks_PR_OPA)
-
-    # print('\n', "######### Importance OPA ##########", '\n')
-    #
-    # Tasks_PR_OPA_IP = copy.deepcopy(Tasks_original)
-    #
-    # Tasks_PR_OPA_IP = sorted(Tasks_PR_OPA_IP, key=lambda Task: Task.importance, reverse=True)
-    # table_print(Tasks_PR_OPA_IP)
-    #
-    # priority_level = len(Tasks_PR_OPA_IP)
-    # unschedulable = []
-    # for i in Tasks_PR_OPA_IP:
-    #     # i.priority = -1
-    #     unschedulable.append(i.task)
-    #
-    # priority_temp = priority_level
-    #
-    # conti = 1
-    #
-    # while conti:
-    #     print("*********************")
-    #     num = 0
-    #     # table_print(Test_tasks)
-    #     for i in Tasks_PR_OPA_IP:
-    #         if i.priority == -1:
-    #             num += 1
-    #     if num == 0:
-    #         break
-    #     else:
-    #         print("The allocated priority level:", priority_temp)
-    #         priority_temp = priority_recursive(priority_temp, Tasks_PR_OPA_IP)
-    #
-    # print('\n', "Final result:", '\n')
-    # # Tasks_PR_OPA = sorted(Tasks_PR_OPA, key=lambda Task: Task.importance, reverse=True)
-    # # print("===== Standard OPA Priority definition ======")
-    # # table_print(Tasks_PR_OPA)
-    # print('\n', "===== OPA Priority definition considering importance level ======")
-    # table_print(Tasks_PR_OPA_IP)
-
-    #
-
-    print('\n', "######### Sensitivity Analysis ##########",'\n')
-
-    for i in Tasks_PR_OPA:
-        i.importance = random.randint(0,100)
-
-    Test_tasks = copy.deepcopy(Tasks_PR_OPA)
-    table_print(Test_tasks)
 
     Dropped_Task = []
     Dropped_Time_upperbound = []
@@ -860,7 +664,8 @@ if __name__ == "__main__":
 
     execution_time_LO_cp = []
     Name_cp = []
-    for i in Test_tasks:
+    temp_test = copy.deepcopy(Test_tasks)
+    for i in temp_test:
         execution_time_LO_cp.append(i.execution_time_LO)
         Name_cp.append(i.task)
 
@@ -910,17 +715,25 @@ if __name__ == "__main__":
         print("Already drooped tasks:")
         table_print(Dropped[0])
 
-        print('\n', "---------- Sensitivity Analysis LO-------------")
+        print('\n', "---------- Sensitivity Analysis LO -------------")
+        # count_LOSA = 0
+        while 1:
 
-        sati = Sensitivity_Analysis_LO(Test_tasks, Dropped, overrun)
-        if sati == 1:
-            print("One Low task should be dropped once overrun happens")
-            table_print(Dropped[0])
-        else:
-            print("Continue to find out the discarded task")
+            sati = Sensitivity_Analysis_LO(Test_tasks, Dropped, overrun)
+            if sati == 1:
+                print("One Low task should be dropped once overrun happens. Restart to check the schedulability of LO "
+                      "mode")
+                table_print(Dropped[0])
+            else:
+                # count_LOSA += 1
+                print("==============================================", '\n')
+                print(" In LO mode in current overrun is schedulable and start to check the shedulability of system MC")
 
-        print('\n', "---------- Sensitivity Analysis HI -------------")
-        print('\n', "Sensitivity_Analysis_LO", '\n')
+                break
+                # if count_LOSA == len(Test_tasks):
+                #     break
+
+        print('\n', "---------- Sensitivity Analysis HI (MC)-------------")
 
         table_print(HI_task_set)
         start = 1
@@ -945,13 +758,23 @@ if __name__ == "__main__":
                     num_check1 += 1
 
             if num_check1 == len(HI_task_set):
-                print("All droppable tasks have already been dropped"
-                      " and all HI task can be executed no more than their HI bound ", '\n',
-                      "(Not all Low tasks need to be dropped)")
 
-                table_print(Dropped[0])
-                print(Dropped[1])
-                break
+                with HiddenPrints():
+                    sati = Sensitivity_Analysis_LO(Test_tasks, Dropped, overrun)
+                sati_HI = 1
+                for h in Test_tasks:
+                    with HiddenPrints():
+                        response_timeMC, sati_HI = response_time_HI_SA(h, Test_tasks, Dropped, overrun)
+                    if sati_HI == 1:
+                        print("attention!!!!!")
+                        break
+
+                if sati == 1 and sati_HI == 0:
+                    print("All droppable tasks have already been dropped and system is scheduled", '\n',
+                          "(Not all Low tasks need to be dropped)")
+                    table_print(Dropped[0])
+                    print(Dropped[1])
+                    break
 
             for task in HI_task_set:
                 print("#########################################", '\n')
@@ -964,7 +787,8 @@ if __name__ == "__main__":
                     table_print(Dropped[0])
                     # print(HI_count)
                     print("+++++++++++++++ task", task.task, "+++++++++++++++++++")
-                    response_timeMC, sati_HI = response_time_HI_SA(task, Test_tasks, Dropped, overrun)
+                    with HiddenPrints():
+                        response_timeMC, sati_HI = response_time_HI_SA(task, Test_tasks, Dropped, overrun)
                     if sati_HI == 1:
                         Increace_mark = 0
                         break
@@ -983,13 +807,234 @@ if __name__ == "__main__":
 
     print('\n', "++++++++++++++++++++++++++++++++++++++++++++++++++")
     print("Final result:")
+    return Dropped
+
+
+def Importance_OPA(Tasks_original):
+    Tasks_PR_OPA_IP = copy.deepcopy(Tasks_original)
+
+    ####TODO: delete this part
+    # for i in Tasks_PR_OPA_IP:
+    #     i.importance = random.randint(0, 100)
+
+    Tasks_PR_OPA_IP = sorted(Tasks_PR_OPA_IP, key=lambda Task: Task.importance, reverse=True)
+    table_print(Tasks_PR_OPA_IP)
+
+    priority_level = len(Tasks_PR_OPA_IP)
+    unschedulable = []
+    for i in Tasks_PR_OPA_IP:
+        # i.priority = -1
+        unschedulable.append(i.task)
+
+    priority_temp = priority_level
+
+    conti = 1
+
+    while conti:
+        print("*********************")
+        num = 0
+        # table_print(Test_tasks)
+        for i in Tasks_PR_OPA_IP:
+            if i.priority == -1:
+                num += 1
+        if num == 0:
+            break
+        else:
+            print("The allocated priority level:", priority_temp)
+            with HiddenPrints():
+                priority_temp, count = priority_recursive(priority_temp, Tasks_PR_OPA_IP)
+            if count == len(Tasks_PR_OPA_IP):
+                print("System unscheduled")
+                break
+    return Tasks_PR_OPA_IP
+
+
+def Standard_OPA(Tasks_original):
+
+    Tasks_PR_OPA = copy.deepcopy(Tasks_original)
+
+    # for i in Tasks_PR_OPA:
+    #     i.importance = random.randint(0, 100)
+
+    priority_level = len(Tasks_PR_OPA)
+    unschedulable = []
+    for i in Tasks_PR_OPA:
+        # i.priority = -1
+        unschedulable.append(i.task)
+
+    priority_temp = priority_level
+
+    conti = 1
+
+    while conti:
+        print("*********************")
+        num = 0
+        # table_print(Test_tasks)
+        for i in Tasks_PR_OPA:
+            if i.priority == -1:
+                num += 1
+        if num == 0:
+            break
+        else:
+            print("The allocated priority level:", priority_temp)
+            with HiddenPrints():
+                priority_temp, count = priority_recursive(priority_temp, Tasks_PR_OPA)
+            # print("ouikhjkh",count, len(Tasks_PR_OPA))
+
+            if count == len(Tasks_PR_OPA):
+                print("System unscheduled")
+                break
+
+    return Tasks_PR_OPA
+
+
+def Degradation_order(Tasks_original, model_original, Appset_original, HI_group):
+    Appset_backpack = []
+    Appset = Appset_original
+    keynode = []
+    for t in Appset:
+        keynode.append(t.keynode)
+        Appset_backpack.append(t)
+        # print("GGGGGGG", t.taskset)
+
+    Appset_task = copy.deepcopy(Appset_original)
+
+    for j in Tasks_original:
+        tasks_name_index.append(j.task)
+    # print("tasks_name_index", tasks_name_index)
+    model, Tasks = model_task_copy(model_original, tasks_name_index, HI_group, Tasks_original)
+
+    print("--------------------------------------------------------", '\n')
+    print("--- Application discarding order ---", '\n')
+    print("--------------------------------------------------------", '\n')
+
+    while len(Appset) > 1:
+        model, Tasks, Appset, Dropped_APP = Application_drop_and_update(Tasks, model, Appset, HI_group, keynode)
+        App_drop_order.append(Dropped_APP)
+
+
+    for i in Appset:
+        # print(i.app_name)
+        App_drop_order.append(i.app_name)
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++", '\n')
+    print("Application discarding order:", App_drop_order)
+    print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++", '\n')
+
+    print("--------------------------------------------------------", '\n')
+    print("--- Determine Task dropping order ---", '\n')
+    print("--------------------------------------------------------", '\n')
+
+    model, Tasks = model_task_copy(model_original, tasks_name_index, HI_group, Tasks_original)
+    # print(model.nodes)
+    Task_drop_order = []
+    print(App_drop_order)
+
+    for app in App_drop_order:
+        temp_order = []
+        print("================== App based Task Round =======================", '\n')
+        print("Start to determine the task dropping order of application:", app)
+        # with HiddenPrints():
+        #     Appset = parameters_initialisation(dict)[2]
+        Appset = Appset_task
+        APP_check = copy.deepcopy(Appset)
+        for t in Appset:
+            # print("TTTTT", t.taskset)
+            keynode.append(t.keynode)
+
+        Test_task_set = []
+        for t in Appset:
+            # print(t.app_name, t.taskset)
+            if t.app_name == app:
+                app_keynode = t.keynode
+                Test_task_set = t.taskset
+
+        print("Droppable tasks", Test_task_set, '\n', "Keynode:", app_keynode)
+        keynode = []
+        keynode.append(app_keynode)
+        check = copy.deepcopy(Test_task_set)
+
+        while Test_task_set:
+            model, Tasks, Appset, temp_order, Test_task_set = Task_drop_and_update(app, Tasks, model, Appset,
+                                                                                   HI_group, Test_task_set, temp_order,
+                                                                                   keynode)
+
+        Task_drop_order.append(temp_order)
+        # for tt in temp_order:
+        #     Task_drop_order.append(tt)
+
+    importance = []
+    for i in Task_drop_order:
+        for j in i:
+            importance.append(j)
+    # print(importance)
+    # print(len(importance))
+    # table_print(Tasks_original)
+    for i in range(len(importance)):
+        for task in Tasks_original:
+            if task.task == importance[i]:
+                task.importance = len(importance) - i
+            elif task.importance == -1:
+                task.importance = 0
+
+    return App_drop_order, Task_drop_order
+
+
+if __name__ == "__main__":
+
+    App_drop_order = []
+    App_drop_task_order = []
+    tasks_name_index = []
+    dict = dictionary_definition()
+    network_edges, network_tasks, Appset, HI_group, Execution_times, period = parameters_initialisation(dict)
+    values = value_generation(network_tasks)
+    Tasks_original, model_original, Appset_original, HI_group = initialisation(network_edges, network_tasks, Appset,
+                                                                               HI_group, values, Execution_times, period)
+
+    table_print(Tasks_original)
+
+    uti = 0
+    for i in Tasks_original:
+        uti += float(i.execution_time_LO)/i.period
+
+    print("System Utilisation", uti)
+    with HiddenPrints():
+        App_drop_order, Task_drop_order = Degradation_order(Tasks_original, model_original, Appset_original, HI_group)
+    print("++++++++++++++++++++++++++++++++++++++++++++++++++", '\n')
+    print("Final result:")
+    print("Application discarding order:", App_drop_order)
+    print("Task degradation order", Task_drop_order, '\n')
+    print("+++++++++++++++++ Output the table of tasks with Importance order ++++++++++++++++++++", '\n')
+    table_print(Tasks_original)
+
+    print('\n', "######### Priority definition ##########",'\n')
+
+    print("######### Standard OPA ##########", '\n')
+    with HiddenPrints():
+        Tasks_PR_OPA = Standard_OPA(Tasks_original)
+    print("===== Standard OPA Priority definition ======")
+    table_print(Tasks_PR_OPA)
+    #
+    # # print('\n', "######### Importance OPA ##########", '\n')
+    # # with HiddenPrints():
+    # #     Tasks_PR_OPA_IP = Importance_OPA(Tasks_original)
+    # # print('\n', "===== OPA Priority definition considering importance level ======")
+    # # table_print(Tasks_PR_OPA_IP)
+    #
+
+    print('\n', "######### Sensitivity Analysis ##########",'\n')
+
+    Test_tasks = copy.deepcopy(Tasks_PR_OPA)
+    # table_print(Test_tasks)
+    with HiddenPrints():
+        Dropped = Sensitivity_Analysis(Test_tasks)
 
     print("The dropped task:")
     table_print(Dropped[0])
     print("System switch point:", '\n', Dropped[1])
     print("The interference bound of dropped task:", '\n', Dropped[2])
     print("System overrun:", '\n', Dropped[3])
-
+    print("Unscheduled tasks:", '\n', Dropped[5])
 
     for i in range(len(Dropped[0])):
         if Dropped[2][i] != 0:
@@ -1001,3 +1046,4 @@ if __name__ == "__main__":
         else:
             print('\n', "Once overrun", Dropped[3][i], "happens. LO Task", Dropped[0][i].task,
                   "need to be dropped directly")
+

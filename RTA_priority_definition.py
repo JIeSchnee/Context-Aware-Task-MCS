@@ -176,6 +176,8 @@ def response_time_Mode_change(task, Test_tasks):
         print("convergent response time:", response_time_HI_task, '\n')
         response_time_set.append(response_time_HI_task)
         MC_candidate.append(s)
+        if response_time_HI_task > task.deadline:
+            break
 
     print("+++++++++++++++++++++++++++++++++++++", '\n')
 

@@ -5,7 +5,7 @@ from random import sample
 from prettytable import PrettyTable
 import os, sys
 import copy
-
+from collections import Counter
 
 class HiddenPrints:
     def __enter__(self):
@@ -188,8 +188,8 @@ def response_time_HI_SA(task, Test_tasks, Dropped, overrun):
             Dropped[0].append(LO_task_set[temp_index])
             Dropped[1].append(switch_point)  # system switch point
             Dropped[2].append(test_rp)  # lower bound
-            Dropped[3].append(task.execution_time_LO)
-            Dropped[4].append((test.execution_time_LO, task.execution_time_LO))
+            Dropped[3].append(overrun-0.1)
+            Dropped[4].append((test.execution_time_LO, upper_bound))
             Dropped[5].append(task.task)
 
             sati_HI = 1
@@ -516,7 +516,24 @@ if __name__ == "__main__":
                   "can not finish its execution after", Dropped[2][i], ".", '\n',
                   "LO Task", Dropped[0][i].task, "need to be dropped.","\n"
                   " However, the system switch point can not later than", Dropped[1][i],
-                  ", after the release of task with overrun(", Dropped[3][i], ") ")
+                  ", after the release of task with overrun(", Dropped[3][i], ") with response time", Dropped[4][i][1])
         else:
             print('\n', "Once overrun", Dropped[3][i], "happens. LO Task", Dropped[0][i].task,
                   "need to be dropped directly")
+
+    milestone = copy.deepcopy(Dropped[3])
+    milestone = list(set(milestone))
+    print(milestone)
+
+    drop_group = []
+    for j in milestone:
+        temp = []
+        for i in range(len(Dropped[0])):
+            if Dropped[3][i] == j:
+                temp.append(Dropped[0][i].task)
+        drop_group.append(temp)
+
+    # print(drop_group)
+    # for i in drop_group:
+    #     print(i[-1])
+

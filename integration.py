@@ -32,7 +32,8 @@ class Task:
     # TODO: Pay attention to the order of conditions. When necessary, the TabularCPD.evidence order should be defined
     #  independently
 
-    def __init__(self, task, cpd, criticality, deadline, period, execution_time_LO, execution_time_HI, priority, importance):
+    def __init__(self, task, cpd, criticality, deadline, period, execution_time_LO, execution_time_HI, priority,
+                 importance):
         self.task = task  # task name
         self.cpd = cpd
         self.criticality = criticality
@@ -64,7 +65,6 @@ def load_task(task_idx, dag_base_folder="/home/jiezou/Documents/Context_aware MC
     C_dict = {}
     V_array = []
     T = G.graph["T"]
-
 
     max_key = 0
     for u, v, weight in G.edges(data='label'):
@@ -123,15 +123,13 @@ def parameters_initialisation(dict, dag_base_folder):
     for app in range(3):
         print("==========================")
         G, V, C, _, T, W = load_task(task_idx=app,
-                                  dag_base_folder= dag_base_folder)
+                                     dag_base_folder=dag_base_folder)
         # print("G: ", G)
         # print("V: ", V)
         # print("C: ", C)
         # print("W: ", W)
 
         print("ET", T)
-
-
 
         edges = []
         for i in range(len(V)):
@@ -220,10 +218,9 @@ def parameters_initialisation(dict, dag_base_folder):
 
     print(app_dependency_node)
     for i in range(len(app_dependency_node)):
-        if i+1 < len(app_dependency_node):
-            network_edges.append((app_dependency_node[i], app_dependency_node[i+1]))
+        if i + 1 < len(app_dependency_node):
+            network_edges.append((app_dependency_node[i], app_dependency_node[i + 1]))
     # print("All edges in the network", network_edges)
-
 
     for i in Appset:
         Droppable_Tasks = []
@@ -277,7 +274,6 @@ def initialisation(network_edges, network_tasks, Appset, HI_group, values, Execu
             if i == l:
                 T_period = period[l]
                 T_deadline = period[l]
-
 
         Tasks.append(Task(model.get_cpds(i).variable, model.get_cpds(i), criticality, T_deadline, T_period,
                           execution_time_LO, execution_time_HI, -1, -1))
@@ -632,8 +628,8 @@ def Task_drop_and_update(app, Tasks_pre, model_pre, Appset, HI_group, Test_task_
 
     return model, Tasks, Appset, Task_drop_order, Test_task_set, mrvalue
 
-def table_print(tasks):
 
+def table_print(tasks):
     table = PrettyTable(
         ['task_id', 'deadline', 'period', 'execution_time_LO', 'execution_time_HI',
          'priority', 'importance', 'criticality'])
@@ -646,7 +642,6 @@ def table_print(tasks):
 
 def Sensitivity_Analysis(Test_tasks):
     # in crease the overrun of HI tasks each time by 10%
-
 
     Dropped_Task = []
     Dropped_Time_upperbound = []
@@ -859,7 +854,6 @@ def Importance_OPA(Tasks_original):
 
 
 def Standard_OPA(Tasks_original):
-
     Tasks_PR_OPA = copy.deepcopy(Tasks_original)
 
     # for i in Tasks_PR_OPA:
@@ -921,7 +915,6 @@ def Degradation_order(Tasks_original, model_original, Appset_original, HI_group)
         model, Tasks, Appset, Dropped_APP = Application_drop_and_update(Tasks, model, Appset, HI_group, keynode)
         App_drop_order.append(Dropped_APP)
 
-
     for i in Appset:
         # print(i.app_name)
         App_drop_order.append(i.app_name)
@@ -964,9 +957,12 @@ def Degradation_order(Tasks_original, model_original, Appset_original, HI_group)
         check = copy.deepcopy(Test_task_set)
 
         while Test_task_set:
-            model, Tasks, Appset, temp_order, Test_task_set, marginal_value = Task_drop_and_update(app, Tasks, model, Appset,
-                                                                                   HI_group, Test_task_set, temp_order,
-                                                                                   keynode)
+            model, Tasks, Appset, temp_order, Test_task_set, marginal_value = Task_drop_and_update(app, Tasks, model,
+                                                                                                   Appset,
+                                                                                                   HI_group,
+                                                                                                   Test_task_set,
+                                                                                                   temp_order,
+                                                                                                   keynode)
 
         Task_drop_order.append(temp_order)
         # for tt in temp_order:
@@ -1005,11 +1001,8 @@ def PurTask_Degradation_order(Tasks_original, model_original, Appset_original, H
     # print("tasks_name_index", tasks_name_index)
     model, Tasks = model_task_copy(model_original, tasks_name_index, HI_group, Tasks_original)
 
-
     mgr_values = []
     temp_order = []
-
-
 
     for t in Appset:
         # print("TTTTT", t.taskset)
@@ -1038,8 +1031,8 @@ def PurTask_Degradation_order(Tasks_original, model_original, Appset_original, H
     print(mgr_values)
     print("++++++++++++++++++++++++++++++++++++++++++++++++++", '\n')
 
-
     return Task_drop_order
+
 
 if __name__ == "__main__":
 
@@ -1048,71 +1041,72 @@ if __name__ == "__main__":
     survive = []
     Alan_remain = []
 
-    for file in os.listdir(path):
+    # for file in os.listdir(path):
+    file = "0"
+    dag_base_folder = path + file + "/"
+    App_drop_order = []
+    App_drop_task_order = []
+    tasks_name_index = []
+    dict = dictionary_definition()
+    Droppable_Tasks = []
+    margnial_variation = []
+    Alan_margnial_variation = []
+    network_edges, network_tasks, Appset, HI_group, Execution_times, period = parameters_initialisation(dict,
+                                                                                                        dag_base_folder)
+    values = value_generation(network_tasks)
+    Tasks_original, model_original, Appset_original, HI_group = initialisation(network_edges, network_tasks, Appset,
+                                                                               HI_group, values, Execution_times,
+                                                                               period)
 
-        dag_base_folder = path + file + "/"
-        App_drop_order = []
-        App_drop_task_order = []
-        tasks_name_index = []
-        dict = dictionary_definition()
-        Droppable_Tasks = []
-        margnial_variation = []
-        Alan_margnial_variation = []
-        network_edges, network_tasks, Appset, HI_group, Execution_times, period = parameters_initialisation(dict, dag_base_folder)
-        values = value_generation(network_tasks)
-        Tasks_original, model_original, Appset_original, HI_group = initialisation(network_edges, network_tasks, Appset,
-                                                                               HI_group, values, Execution_times, period)
+    # table_print(Tasks_original)
 
-        # table_print(Tasks_original)
+    mgr_model = copy.deepcopy(model_original)
+    mgr_Tasks = copy.deepcopy(Tasks_original)
 
-        mgr_model = copy.deepcopy(model_original)
-        mgr_Tasks = copy.deepcopy(Tasks_original)
+    ALan_mgr_model = copy.deepcopy(model_original)
+    Alan_Taskset = copy.deepcopy(Tasks_original)
+    Alan_App = copy.deepcopy(Appset)
 
-        ALan_mgr_model = copy.deepcopy(model_original)
-        Alan_Taskset = copy.deepcopy(Tasks_original)
-        Alan_App = copy.deepcopy(Appset)
+    for i in Appset:
+        Droppable_Tasks.append(i.taskset)
+    Droppable_Tasks = reduce(operator.add, Droppable_Tasks)
+    print("Droppable tasks:", Droppable_Tasks)
 
+    uti = 0
+    for i in Tasks_original:
+        uti += float(i.execution_time_LO) / i.period
 
-        for i in Appset:
-            Droppable_Tasks.append(i.taskset)
-        Droppable_Tasks = reduce(operator.add, Droppable_Tasks)
-        print("Droppable tasks:", Droppable_Tasks)
+    print("System Utilisation", uti)
 
-        uti = 0
-        for i in Tasks_original:
-            uti += float(i.execution_time_LO)/i.period
+    # with HiddenPrints():
+    #     App_drop_order, Task_drop_order = Degradation_order(Tasks_original, model_original, Appset_original, HI_group)
+    # print("++++++++++++++++++++++++++++++++++++++++++++++++++", '\n')
+    # print("Final result:")
+    # print("Application discarding order:", App_drop_order)
+    # print("Task degradation order", Task_drop_order, '\n')
+    # print("+++++++++++++++++ Output the table of tasks with Importance definition ++++++++++++++++++++", '\n')
+    # table_print(Tasks_original)
+    with HiddenPrints():
+        Task_drop_order = PurTask_Degradation_order(Tasks_original, model_original, Appset_original, HI_group)
+    print("%%%%%%%")
+    print("Droppable tasks", Droppable_Tasks)
+    print(Task_drop_order[0])
+    print(Task_drop_order[1])
 
-        print("System Utilisation", uti)
-
-        # with HiddenPrints():
-        #     App_drop_order, Task_drop_order = Degradation_order(Tasks_original, model_original, Appset_original, HI_group)
-        # print("++++++++++++++++++++++++++++++++++++++++++++++++++", '\n')
-        # print("Final result:")
-        # print("Application discarding order:", App_drop_order)
-        # print("Task degradation order", Task_drop_order, '\n')
-        # print("+++++++++++++++++ Output the table of tasks with Importance definition ++++++++++++++++++++", '\n')
-        # table_print(Tasks_original)
-        with HiddenPrints():
-            Task_drop_order = PurTask_Degradation_order(Tasks_original, model_original, Appset_original, HI_group)
-        print("%%%%%%%")
-        print("Droppable tasks", Droppable_Tasks)
-        print(Task_drop_order[0])
-        print(Task_drop_order[1])
-
-        importance = []
-        for i in Task_drop_order[0]:
-            importance.append(i)
-        # print(importance)
-        # print(len(importance))
-        # table_print(Tasks_original)
-        for i in range(len(importance)):
-            for task in Tasks_original:
-                if task.task == importance[i]:
-                    task.importance = len(importance) - i
-                elif task.importance == -1:
-                    task.importance = 0
-        table_print(Tasks_original)
-        print('\n', "######### Priority definition ##########",'\n')
+    importance = []
+    for i in Task_drop_order[0]:
+        importance.append(i)
+    # print(importance)
+    # print(len(importance))
+    # table_print(Tasks_original)
+    for i in range(len(importance)):
+        for task in Tasks_original:
+            if task.task == importance[i]:
+                task.importance = len(importance) - i
+            elif task.importance == -1:
+                task.importance = 0
+    table_print(Tasks_original)
+    print('\n', "######### Priority definition ##########", '\n')
     #     #
     #     # print("######### Standard OPA ##########", '\n')
     #     # with HiddenPrints():
@@ -1120,120 +1114,113 @@ if __name__ == "__main__":
     #     # print("===== Standard OPA Priority definition ======")
     #     # table_print(Tasks_PR_OPA)
     #     #
-        print('\n', "######### Importance OPA ##########", '\n')
-        with HiddenPrints():
-            Tasks_PR_OPA_IP = Importance_OPA(Tasks_original)
-        print('\n', "===== OPA Priority definition considering importance level ======")
-        table_print(Tasks_PR_OPA_IP)
-        #
+    print('\n', "######### Importance OPA ##########", '\n')
+    with HiddenPrints():
+        Tasks_PR_OPA_IP = Importance_OPA(Tasks_original)
+    print('\n', "===== OPA Priority definition considering importance level ======")
+    table_print(Tasks_PR_OPA_IP)
+    Tasks_IP_Alan = copy.deepcopy(Tasks_PR_OPA_IP)
     #
-        print('\n', "######### Sensitivity Analysis ##########",'\n')
+    print('\n', "######### Sensitivity Analysis ##########", '\n')
 
-        Test_tasks = copy.deepcopy(Tasks_PR_OPA_IP)
-        # table_print(Test_tasks)
-        with HiddenPrints():
-            Dropped = Sensitivity_Analysis(Test_tasks)
+    Test_tasks = copy.deepcopy(Tasks_PR_OPA_IP)
+    # table_print(Test_tasks)
+    with HiddenPrints():
+        Dropped = Sensitivity_Analysis(Test_tasks)
 
-        print("The dropped task:")
-        table_print(Dropped[0])
-        # print("System switch point:", '\n', Dropped[1])
-        # print("The interference bound of dropped task:", '\n', Dropped[2])
-        # print("System overrun:", '\n', Dropped[3])
-        # print("Unscheduled tasks:", '\n', Dropped[5])
-        #
-        # for i in range(len(Dropped[0])):
-        #     if Dropped[2][i] != 0:
-        #         print('\n', "if HI task", Dropped[5][i], " with LO_execution time", Dropped[4][i][0],
-        #               "can not finish its execution after", Dropped[2][i], ".", '\n',
-        #               "LO Task", Dropped[0][i].task, "need to be dropped.","\n"
-        #               " However, the system switch point can not later than", Dropped[1][i],
-        #               ", after the release of task with overrun(", Dropped[3][i], ") ")
-        #     else:
-        #         print('\n', "Once overrun", Dropped[3][i], "happens. LO Task", Dropped[0][i].task,
-        #               "need to be dropped directly")
-        #
-        milestone = copy.deepcopy(Dropped[3])
-        milestone = list(set(milestone))
+    print("The dropped task:")
+    table_print(Dropped[0])
+    # print("System switch point:", '\n', Dropped[1])
+    # print("The interference bound of dropped task:", '\n', Dropped[2])
+    # print("System overrun:", '\n', Dropped[3])
+    # print("Unscheduled tasks:", '\n', Dropped[5])
+    #
+    # for i in range(len(Dropped[0])):
+    #     if Dropped[2][i] != 0:
+    #         print('\n', "if HI task", Dropped[5][i], " with LO_execution time", Dropped[4][i][0],
+    #               "can not finish its execution after", Dropped[2][i], ".", '\n',
+    #               "LO Task", Dropped[0][i].task, "need to be dropped.","\n"
+    #               " However, the system switch point can not later than", Dropped[1][i],
+    #               ", after the release of task with overrun(", Dropped[3][i], ") ")
+    #     else:
+    #         print('\n', "Once overrun", Dropped[3][i], "happens. LO Task", Dropped[0][i].task,
+    #               "need to be dropped directly")
+    #
+    milestone = copy.deepcopy(Dropped[3])
+    milestone = list(set(milestone))
 
-        drop_group = []
-        for j in milestone:
-            temp = []
-            for i in range(len(Dropped[0])):
-                if Dropped[3][i] == j:
-                    temp.append(Dropped[0][i].task)
-            drop_group.append(temp)
-        marginal_maintenance = []
-        print(drop_group)
-        print(Task_drop_order[0])
-        print(Task_drop_order[1])
-        for i in drop_group:
-            temo_t = i[-1]
-            ind = Task_drop_order[0].index(temo_t)
-            # print("index", ind)
-            marginal_maintenance.append(Task_drop_order[1][ind])
+    drop_group = []
+    for j in milestone:
+        temp = []
+        for i in range(len(Dropped[0])):
+            if Dropped[3][i] == j:
+                temp.append(Dropped[0][i].task)
+        drop_group.append(temp)
+    marginal_maintenance = []
+    print(drop_group)
+    print(Task_drop_order[0])
+    print(Task_drop_order[1])
+    for i in drop_group:
+        temo_t = i[-1]
+        ind = Task_drop_order[0].index(temo_t)
+        # print("index", ind)
+        marginal_maintenance.append(Task_drop_order[1][ind])
 
-        milestone_margin = [milestone,
-                            marginal_maintenance]
-        print(milestone)
-        print("probability:", marginal_maintenance)
+    milestone_margin = [milestone,
+                        marginal_maintenance]
+    print(milestone)
+    print("probability:", marginal_maintenance)
 
-
-
-        print("The number of tasks, which are survived", len(Droppable_Tasks) - len(Dropped[0]))
-        for i in Tasks_PR_OPA_IP:
-            if i.task not in Dropped[0] and i.criticality == "LO":
-                survive.append(i.task)
+    print("The number of tasks, which are survived", len(Droppable_Tasks) - len(Dropped[0]))
+    for i in Tasks_PR_OPA_IP:
+        if i.task not in Dropped[0] and i.criticality == "LO":
+            survive.append(i.task)
 
     #
-        print('\n',"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^", '\n')
-        print("The method proposed by Alan's paper")
+    print('\n', "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^", '\n')
+    print("The method proposed by Alan's paper")
 
-        Alan_Droppable_Tasks = copy.deepcopy(Droppable_Tasks)
-        L = random.sample(range(0, len(Alan_App)), len(Alan_App))
+    Alan_Droppable_Tasks = copy.deepcopy(Droppable_Tasks)
 
-        table_print(Alan_Taskset)
-        for i in range(len(Alan_App)):
-            for j in Alan_App[i].All_tasks:
-                for k in Alan_Taskset:
-                    if k.task == j:
-                        k.importance = L[i]
-        for i in Alan_App:
-            print(i.All_tasks)
-        table_print(Alan_Taskset)
+    # L = random.sample(range(0, len(Alan_App)), len(Alan_App))
+    # table_print(Alan_Taskset)
+    # for i in range(len(Alan_App)):
+    #     for j in Alan_App[i].All_tasks:
+    #         for k in Alan_Taskset:
+    #             if k.task == j:
+    #                 k.importance = L[i]
+    # for i in Alan_App:
+    #     print(i.All_tasks)
+    # table_print(Alan_Taskset)
 
-        print('\n', "######### Importance OPA For Alan ##########", '\n')
-        with HiddenPrints():
-            Tasks_IP = Importance_OPA(Alan_Taskset)
-        print('\n', "===== OPA Priority definition considering importance level ======")
-        table_print(Tasks_IP)
-        with HiddenPrints():
-            Alan_Dropped = Sensitivity_Analysis(Tasks_IP)
+    # print('\n', "######### Importance OPA For Alan ##########", '\n')
+    # with HiddenPrints():
+    #     Tasks_IP = Importance_OPA(Alan_Taskset)
+    # print('\n', "===== OPA Priority definition considering importance level ======")
 
-        table_print(Alan_Dropped[0])
-        remained = copy.deepcopy(Alan_Droppable_Tasks)
-        print(remained)
+    table_print(Tasks_IP_Alan)
+    with HiddenPrints():
+        Alan_Dropped = Sensitivity_Analysis(Tasks_IP_Alan)
 
-        Alan_app_drop = []
+    table_print(Alan_Dropped[0])
+    remained = copy.deepcopy(Alan_Droppable_Tasks)
+    print("Original tasks in the system for Alan's method", remained)
 
-        for i in Alan_Dropped[0]:
-            for j in Alan_App:
-                if i.task in j.taskset and i.task in remained:
-                    print(j.taskset)
-                    Alan_app_drop.append(j.app_name)
-                    for dp in j.taskset:
-                        remained.remove(dp)
-                    break
-        print("The application drop order", Alan_app_drop)
-        print(remained)
+    Alan_app_drop = []
 
-        Alan_remain.append(remained)
+    for i in Alan_Dropped[0]:
+        for j in Alan_App:
+            if i.task in j.taskset and i.task in remained:
+                # print(j.taskset)
+                Alan_app_drop.append(j.app_name)
+                for dp in j.taskset:
+                    remained.remove(dp)
+                break
+    print("The application drop order", Alan_app_drop)
 
-    print(survive)
-    print(Alan_remain)
+    print("The finally remained tasks with Alan's method", remained)
+    Alan_remain.append(remained)
 
-
-
-
-
-
-
+    print("=============== Output comparison ================")
+    print("The survived tasks based on BBN method", survive)
+    print("The survived tasks based on Alan's method", Alan_remain)

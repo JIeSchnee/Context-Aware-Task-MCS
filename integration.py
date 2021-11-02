@@ -1172,11 +1172,17 @@ if __name__ == "__main__":
     print("probability:", marginal_maintenance)
 
     print("The number of tasks, which are survived", len(Droppable_Tasks) - len(Dropped[0]))
-    for i in Tasks_PR_OPA_IP:
-        if i.task not in Dropped[0] and i.criticality == "LO":
-            survive.append(i.task)
+    table_print(Dropped[0])
+    remain_bbn = copy.deepcopy(Droppable_Tasks)
 
-    #
+    for j in Dropped[0]:
+        if j.task in Droppable_Tasks:
+            remain_bbn.remove(j.task)
+
+    print(remain_bbn)
+    survive.append(remain_bbn)
+
+
     print('\n', "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^", '\n')
     print("The method proposed by Alan's paper")
 
@@ -1198,11 +1204,13 @@ if __name__ == "__main__":
     #     Tasks_IP = Importance_OPA(Alan_Taskset)
     # print('\n', "===== OPA Priority definition considering importance level ======")
 
-    table_print(Tasks_IP_Alan)
-    with HiddenPrints():
-        Alan_Dropped = Sensitivity_Analysis(Tasks_IP_Alan)
+    # table_print(Tasks_IP_Alan)
+    # with HiddenPrints():
+    #     Alan_Dropped = Sensitivity_Analysis(Tasks_IP_Alan)
+    #
+    # table_print(Alan_Dropped[0])
 
-    table_print(Alan_Dropped[0])
+    Alan_Dropped = copy.deepcopy(Dropped)
     remained = copy.deepcopy(Alan_Droppable_Tasks)
     print("Original tasks in the system for Alan's method", remained)
 

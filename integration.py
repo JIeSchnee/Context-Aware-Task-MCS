@@ -516,7 +516,9 @@ def Application_drop_and_update(Tasks_pre, model_pre, Appset, HI_group, keynode)
     print('\n', "#################################################", '\n')
     print("---Application discarding decision---", '\n')
     assumption_ID = EU_global_set.index(max(EU_global_set))
+    EU_value = max(EU_global_set)
     print("Task dropping start from: ", Dropped_APPs[assumption_ID], '(', App_drop_tasks[assumption_ID], ')', '\n')
+    print(EU_value)
     print("#################################################", '\n')
     print("-----Network update and look for the next dropped App--- ")
     model_copy, Tasks_copy = model_task_copy(model_pre, tasks_name_index, HI_group, Tasks_pre)
@@ -541,12 +543,13 @@ def Application_drop_and_update(Tasks_pre, model_pre, Appset, HI_group, keynode)
     Appset = remove_app(Appset, Dropped_APPs[assumption_ID])
 
     print("dropped app and tasks:", Dropped_APPs[assumption_ID], dropped_task_set)
+    print("remain App", len(Appset))
     print("rest nodes", model_copy.nodes)
 
     # for i in Tasks:
     #     print(i.task)
 
-    return model_copy, Tasks, Appset, Dropped_APPs[assumption_ID]
+    return model_copy, Tasks, Appset, Dropped_APPs[assumption_ID], EU_value
 
 
 def app_task_drop_test(app, Test_task_set, model_pre, tasks_name_index, HI_group, Appset, Keynode, Tasks_pre):
@@ -910,10 +913,11 @@ def Degradation_order(Tasks_original, model_original, Appset_original, HI_group)
     print("--------------------------------------------------------", '\n')
     print("--- Application discarding order ---", '\n')
     print("--------------------------------------------------------", '\n')
-
-    while len(Appset) > 1:
-        model, Tasks, Appset, Dropped_APP = Application_drop_and_update(Tasks, model, Appset, HI_group, keynode)
+    EU_set = []
+    while len(Appset) >= 1:
+        model, Tasks, Appset, Dropped_APP, EU_value = Application_drop_and_update(Tasks, model, Appset, HI_group, keynode)
         App_drop_order.append(Dropped_APP)
+        EU_set.append(EU_value)
 
     for i in Appset:
         # print(i.app_name)
@@ -921,6 +925,7 @@ def Degradation_order(Tasks_original, model_original, Appset_original, HI_group)
 
     print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++", '\n')
     print("Application discarding order:", App_drop_order)
+    print("The EU value variation", EU_set)
     print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++", '\n')
 
     print("--------------------------------------------------------", '\n')
@@ -957,7 +962,7 @@ def Degradation_order(Tasks_original, model_original, Appset_original, HI_group)
 
         # keynode.append(app_keynode)
         check = copy.deepcopy(Test_task_set)
-
+        mgr_values = []
         while Test_task_set:
             model, Tasks, Appset, temp_order, Test_task_set, marginal_value = Task_drop_and_update(app, Tasks, model,
                                                                                                    Appset,
@@ -965,10 +970,16 @@ def Degradation_order(Tasks_original, model_original, Appset_original, HI_group)
                                                                                                    Test_task_set,
                                                                                                    temp_order,
                                                                                                    keynode)
+            mgr_values.append(marginal_value)
 
         Task_drop_order.append(temp_order)
-        # for tt in temp_order:
-        #     Task_drop_order.append(tt)
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++", '\n')
+    # print("Application discarding order:", App_drop_order)
+    # print("The EU value variation", EU_set)
+    print("Application discarding order:", Task_drop_order)
+    print("The EU value variation", mgr_values)
+    print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++", '\n')
 
     importance = []
     for i in Task_drop_order:
@@ -1082,10 +1093,10 @@ if __name__ == "__main__":
 
     # with HiddenPrints():
     App_drop_order, Task_drop_order = Degradation_order(Tasks_original, model_original, Appset_original, HI_group)
-    print("++++++++++++++++++++++++++++++++++++++++++++++++++", '\n')
-    print("Final result:")
-    print("Application discarding order:", App_drop_order)
-    print("Task degradation order", Task_drop_order, '\n')
+    # print("++++++++++++++++++++++++++++++++++++++++++++++++++", '\n')
+    # print("Final result:")
+    # print("Application discarding order:", App_drop_order)
+    # print("Task degradation order", Task_drop_order, '\n')
     # print("+++++++++++++++++ Output the table of tasks with Importance definition ++++++++++++++++++++", '\n')
     # table_print(Tasks_original)
 

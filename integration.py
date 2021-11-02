@@ -5,6 +5,8 @@ import sys
 from random import choice
 import operator
 from itertools import chain
+
+import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import pandas as pd
@@ -1270,18 +1272,40 @@ if __name__ == "__main__":
 
 
     marginal_App = []
+    check = []
     for i in drop_app:
         temp_app = i[-1]
-        temp_EU = App_EU[App_drop_order.index(temp_app)]
-        marginal_App.append(temp_EU)
+        if i[-1] not in check:
+            temp_EU = App_EU[App_drop_order.index(temp_app)]
+            marginal_App.append(temp_EU)
+            for j in i:
+                check.append(j)
+        else:
+            marginal_App.append(marginal_App[-1])
 
     print("the overrun level", milestone)
     print("Dropped Apps of corresponding overrun", drop_app)
     print("probability:", marginal_App)
 
-
     print("The finally remained tasks with Alan's method", remained)
     Alan_remain.append(remained)
+
+    name_list = milestone
+    list1 = marginal_maintenance # task level
+    list2 = marginal_App # app level
+
+    total_width, n = 0.8, 2
+    width = total_width / n
+    x = list(range(len(list1)))
+    # print(x)
+    # print(marginal_maintenance)
+    # print(marginal_App)
+    plt.bar(x, marginal_maintenance, width=width, label='BBN', tick_label=name_list)
+    for i in range(len(x)):
+        x[i] = x[i] + width
+    plt.bar(x, marginal_App, width=width, label='Alan', tick_label=name_list)
+    plt.legend()
+    plt.show()
 
     print("=============== Output comparison ================")
     print("The survived tasks based on BBN method", survive)

@@ -936,7 +936,7 @@ def Degradation_order(Tasks_original, model_original, Appset_original, HI_group)
     # print(model.nodes)
     Task_drop_order = []
     print(App_drop_order)
-
+    mgr_values = []
     for app in App_drop_order:
         temp_order = []
         print("================== App based Task Round =======================", '\n')
@@ -962,7 +962,7 @@ def Degradation_order(Tasks_original, model_original, Appset_original, HI_group)
 
         # keynode.append(app_keynode)
         check = copy.deepcopy(Test_task_set)
-        mgr_values = []
+
         while Test_task_set:
             model, Tasks, Appset, temp_order, Test_task_set, marginal_value = Task_drop_and_update(app, Tasks, model,
                                                                                                    Appset,
@@ -975,8 +975,8 @@ def Degradation_order(Tasks_original, model_original, Appset_original, HI_group)
         Task_drop_order.append(temp_order)
 
     print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++", '\n')
-    # print("Application discarding order:", App_drop_order)
-    # print("The EU value variation", EU_set)
+    print("Application discarding order:", App_drop_order)
+    print("The EU value variation", EU_set)
     print("Application discarding order:", Task_drop_order)
     print("The EU value variation", mgr_values)
     print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++", '\n')

@@ -1274,7 +1274,7 @@ if __name__ == "__main__":
             print("the overrun level", milestone)
             print("Dropped Apps of corresponding overrun", drop_app)
             print("probability:", marginal_App)
-            print("The number of tasks, which are survived", len(remain_bbn))
+            print("The number of tasks, which are survived", len(remained))
             print("The finally remained tasks with Alan's method", remained)
             Alan_remain.append(len(list(chain(*remained))))
             if milestone:

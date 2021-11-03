@@ -1052,7 +1052,7 @@ def PurTask_Degradation_order(Tasks_original, model_original, Appset_original, H
 
 if __name__ == "__main__":
 
-    path = "/home/jiezou/Documents/Context_aware MCS/dag-gen-rnd-master/data/data-multi-m4-u1.0/"
+    path = "/home/jiezou/Documents/Context_aware MCS/dag-gen-rnd-master/data/data-multi-m4-u0.3/"
     O_system_uti = []
     O_survive = []
     O_Alan_remain = []
@@ -1061,9 +1061,12 @@ if __name__ == "__main__":
     O_Alan_tolerant_overrun = []
     O_Alan_final_EU = []
     O_Droppable_Tasks_set = []
+    EU_difference = []
     for file in os.listdir(path):
+        print("####### file number", file)
 
-        test_round = 20
+        test_round = 10
+        target_Uti = 0.3
         system_uti = []
         survive = []
         Alan_remain = []
@@ -1084,6 +1087,7 @@ if __name__ == "__main__":
             Droppable_Tasks = []
             margnial_variation = []
             Alan_margnial_variation = []
+
             network_edges, network_tasks, Appset, HI_group, Execution_times, period = parameters_initialisation(dict,
                                                                                                                 dag_base_folder)
             values = value_generation(network_tasks)
@@ -1103,7 +1107,8 @@ if __name__ == "__main__":
             for i in Appset:
                 Droppable_Tasks.append(i.taskset)
             Droppable_Tasks = reduce(operator.add, Droppable_Tasks)
-            print("Droppable tasks:", Droppable_Tasks)
+            print("Droppable tasks:", Droppable_Tasks, '\n', len(Droppable_Tasks))
+
 
             uti = 0
             for i in Tasks_original:
@@ -1111,6 +1116,9 @@ if __name__ == "__main__":
 
             print("System Utilisation", uti)
             system_uti.append(uti)
+            bias = abs(target_Uti - uti)
+
+            # if bias <= 0.1:
 
             with HiddenPrints():
                 App_drop_order, Task_drop_order, App_EU, Task_EU = Degradation_order(Tasks_original, model_original,
@@ -1121,175 +1129,236 @@ if __name__ == "__main__":
             print("The EU value variation", App_EU)
             print("Application discarding order:", Task_drop_order)
             print("The EU value variation", Task_EU)
-            print("+++++++++++++++++ Output the table of tasks with Importance definition ++++++++++++++++++++", '\n')
 
-            importance = []
-            for i in Task_drop_order:
-                for j in i:
-                    importance.append(j)
-            # print(importance)
-            # print(len(importance))
-            # table_print(Tasks_original)
-            for i in range(len(importance)):
-                for task in Tasks_original:
-                    if task.task == importance[i]:
-                        task.importance = len(importance) - i
-                    elif task.importance == -1:
-                        task.importance = 0
-            # table_print(Tasks_original)
-
-            print('\n', "######### Priority definition ##########", '\n')
-
-            with HiddenPrints():
-                Tasks_PR_OPA_IP = Importance_OPA(Tasks_original) # sorted by importance
-                # Tasks_PR_OPA_IP = Standard_OPA(Tasks_original) # standard method without importance emphasizing
-            table_print(Tasks_PR_OPA_IP)
-            Tasks_IP_Alan = copy.deepcopy(Tasks_PR_OPA_IP)
-            #
-            print('\n', "######### Sensitivity Analysis ##########", '\n')
-
-            Test_tasks = copy.deepcopy(Tasks_PR_OPA_IP)
-            # table_print(Test_tasks)
-            with HiddenPrints():
-                Dropped = Sensitivity_Analysis(Test_tasks)
-
-            print("The dropped task:")
-            table_print(Dropped[0])
-            # print("System switch point:", '\n', Dropped[1])
-            # print("The interference bound of dropped task:", '\n', Dropped[2])
-            # print("System overrun:", '\n', Dropped[3])
-            # print("Unscheduled tasks:", '\n', Dropped[5])
-            #
-            # for i in range(len(Dropped[0])):
-            #     if Dropped[2][i] != 0:
-            #         print('\n', "if HI task", Dropped[5][i], " with LO_execution time", Dropped[4][i][0],
-            #               "can not finish its execution after", Dropped[2][i], ".", '\n',
-            #               "LO Task", Dropped[0][i].task, "need to be dropped.","\n"
-            #               " However, the system switch point can not later than", Dropped[1][i],
-            #               ", after the release of task with overrun(", Dropped[3][i], ") ")
-            #     else:
-            #         print('\n', "Once overrun", Dropped[3][i], "happens. LO Task", Dropped[0][i].task,
-            #               "need to be dropped directly")
-            #
-            milestone = copy.deepcopy(Dropped[3])
-            milestone = list(set(milestone))
-
-            drop_group = []
-            drop_app = []
-            for j in milestone:
-                temp = []
-                temp_app = []
-                for i in range(len(Dropped[0])):
-                    if Dropped[3][i] == j:
-                        temp.append(Dropped[0][i].task)
-                        for k in Alan_App:
-                            if Dropped[0][i].task in k.taskset:
-                                if k.app_name not in temp_app:
-                                    temp_app.append(k.app_name)
-
-                drop_group.append(temp)
-                drop_app.append(temp_app)
-
-            marginal_maintenance = []
-            # print(drop_group)
-            # print(drop_app)
-
-            if Dropped[0]:
-                # print(Task_drop_order)
-                # print(Task_EU)
-                Task_search_set = []
-                for i in Task_drop_order:
-                    if i:
-                        for j in i:
-                            Task_search_set.append(j)
-                    else:
-                        Task_search_set.append(665)
-
-                # print(Task_search_set)
-
-                for i in drop_group:
-                    temo_t = i[-1]
-                    ind = Task_search_set.index(temo_t)
-                    # print("index", ind)
-                    marginal_maintenance.append(Task_EU[ind])
-
-                milestone_margin = [milestone,
-                                    marginal_maintenance]
-
-            print("the overrun level", milestone)
-            print("Dropped tasks of corresponding overrun", drop_group)
-            print("probability:", marginal_maintenance)
-            if milestone:
-                tolerant_overrun.append(milestone[-1])
-                final_EU.append(marginal_maintenance[-1])
-
-            else:
-                tolerant_overrun.append(0)
-                final_EU.append(0)
-
-
-            Droppable_Tasks_set.append(len(Droppable_Tasks))
-            print("The number of tasks, which are survived", len(Droppable_Tasks) - len(Dropped[0]))
-            # table_print(Dropped[0])
-            remain_bbn = copy.deepcopy(Droppable_Tasks)
-
-            for j in Dropped[0]:
-                if j.task in Droppable_Tasks:
-                    remain_bbn.remove(j.task)
-            print("The survived tasks", remain_bbn)
-            survive.append(len(list(chain(*remain_bbn))))
-
-            print('\n', "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^", '\n')
-            print("The method proposed by Alan's paper")
-
-            Alan_Droppable_Tasks = copy.deepcopy(Droppable_Tasks)
-            Alan_Dropped = copy.deepcopy(Dropped)
-            remained = copy.deepcopy(Alan_Droppable_Tasks)
-            # print("Original tasks in the system for Alan's method", remained)
-
-            Alan_app_drop = []
-
-            for i in Alan_Dropped[0]:
-                for j in Alan_App:
-                    if i.task in j.taskset and i.task in remained:
-                        # print(j.taskset)
-                        Alan_app_drop.append(j.app_name)
-                        for dp in j.taskset:
-                            remained.remove(dp)
-                        break
-            print("The application drop order", Alan_app_drop)
-
-            marginal_App = []
-            check = []
-            for i in drop_app:
-                temp_app = i[-1]
-                if i[-1] not in check:
-                    temp_EU = App_EU[App_drop_order.index(temp_app)]
-                    marginal_App.append(temp_EU)
-                    for j in i:
-                        check.append(j)
+            order_check = 0
+            temp_V = App_EU[0]
+            for i in App_EU:
+                if i <= temp_V:
+                    order_check = 1
+                    temp_V = i
                 else:
-                    marginal_App.append(marginal_App[-1])
+                    order_check = 0
+                    print("KKKKFADGKGKI", order_check)
+                    break
 
-            print("the overrun level", milestone)
-            print("Dropped Apps of corresponding overrun", drop_app)
-            print("probability:", marginal_App)
-            print("The number of tasks, which are survived", len(remained))
-            print("The finally remained tasks with Alan's method", remained)
-            Alan_remain.append(len(list(chain(*remained))))
-            if milestone:
-                Alan_tolerant_overrun.append(milestone[-1])
-                Alan_final_EU.append(marginal_App[-1])
-            else:
-                Alan_tolerant_overrun.append(0)
-                Alan_final_EU.append(0)
+            if order_check:
+                print("+++++++++++++++++ Output the table of tasks with Importance definition ++++++++++++++++++++", '\n')
+                Droppable_Tasks_set.append(len(Droppable_Tasks))
+                print(Droppable_Tasks_set)
+                importance = []
+                for i in Task_drop_order:
+                    for j in i:
+                        importance.append(j)
+                # print(importance)
+                # print(len(importance))
+                # table_print(Tasks_original)
+                for i in range(len(importance)):
+                    for task in Tasks_original:
+                        if task.task == importance[i]:
+                            task.importance = len(importance) - i
+                        elif task.importance == -1:
+                            task.importance = 0
+                # table_print(Tasks_original)
 
-            test_round -= 1
+                print('\n', "######### Priority definition ##########", '\n')
 
+                with HiddenPrints():
+                    Tasks_PR_OPA_IP = Importance_OPA(Tasks_original) # sorted by importance
+                    # Tasks_PR_OPA_IP = Standard_OPA(Tasks_original) # standard method without importance emphasizing
+                table_print(Tasks_PR_OPA_IP)
+                Tasks_IP_Alan = copy.deepcopy(Tasks_PR_OPA_IP)
+                #
+                print('\n', "######### Sensitivity Analysis ##########", '\n')
+
+                Test_tasks = copy.deepcopy(Tasks_PR_OPA_IP)
+                # table_print(Test_tasks)
+                with HiddenPrints():
+                    Dropped = Sensitivity_Analysis(Test_tasks)
+
+                print("The dropped task:")
+                table_print(Dropped[0])
+                print("System switch point:", '\n', Dropped[1])
+                # print("The interference bound of dropped task:", '\n', Dropped[2])
+                # print("System overrun:", '\n', Dropped[3])
+                if Dropped[3]:
+                    temp_overrun = Dropped[3][0]
+                    for i in Dropped[3]:
+                        if i < temp_overrun:
+                            i = temp_overrun
+                            temp_overrun = i
+                    print("System overrun:", '\n', Dropped[3])
+                # print("Unscheduled tasks:", '\n', Dropped[5])
+                #
+                # for i in range(len(Dropped[0])):
+                #     if Dropped[2][i] != 0:
+                #         print('\n', "if HI task", Dropped[5][i], " with LO_execution time", Dropped[4][i][0],
+                #               "can not finish its execution after", Dropped[2][i], ".", '\n',
+                #               "LO Task", Dropped[0][i].task, "need to be dropped.","\n"
+                #               " However, the system switch point can not later than", Dropped[1][i],
+                #               ", after the release of task with overrun(", Dropped[3][i], ") ")
+                #     else:
+                #         print('\n', "Once overrun", Dropped[3][i], "happens. LO Task", Dropped[0][i].task,
+                #               "need to be dropped directly")
+                #
+
+                milestone_set = copy.deepcopy(Dropped[3])
+                temp = 999
+                milestone = []
+                for i in milestone_set:
+                    if i != temp:
+                        milestone.append(i)
+                        temp = i
+                # print("iojuiojoj", milestone)
+
+                drop_group = []
+                drop_app = []
+                for j in milestone:
+                    temp = []
+                    temp_app = []
+                    # print("nhcnn", j)
+                    for i in range(len(Dropped[0])):
+                        if Dropped[3][i] == j:
+                            # print("tdjkj", Dropped[0][i].task)
+                            temp.append(Dropped[0][i].task)
+                            for k in Alan_App:
+                                if Dropped[0][i].task in k.taskset:
+                                    if k.app_name not in temp_app:
+                                        temp_app.append(k.app_name)
+
+                    drop_group.append(temp)
+                    drop_app.append(temp_app)
+
+                marginal_maintenance = []
+                # print(drop_group)
+                # print(drop_app)
+
+                if Dropped[0]:
+                    # print(Task_drop_order)
+                    # print(Task_EU)
+                    Task_search_set = []
+                    for i in Task_drop_order:
+                        if i:
+                            for j in i:
+                                Task_search_set.append(j)
+                        else:
+                            Task_search_set.append(665)
+                    print("hjhuhihklhgkajk")
+                    print(Task_drop_order)
+                    print(Task_search_set)
+                    print(Task_EU)
+                    print(drop_group)
+
+                    for i in drop_group:
+                        temo_t = i[-1]
+                        ind = Task_search_set.index(temo_t)
+                        # print("index", ind)
+                        marginal_maintenance.append(Task_EU[ind])
+
+                    milestone_margin = [milestone,
+                                        marginal_maintenance]
+
+                print("the overrun level", milestone)
+                print("Dropped tasks of corresponding overrun", drop_group)
+
+                print("probability:", marginal_maintenance)
+                if milestone:
+                    tolerant_overrun.append(milestone[-1])
+                    final_EU.append(marginal_maintenance[-1])
+
+                else:
+                    tolerant_overrun.append(0)
+                    final_EU.append(0)
+
+
+
+                print("The number of tasks, which are survived", len(Droppable_Tasks) - len(Dropped[0]))
+                # table_print(Dropped[0])
+                remain_bbn = copy.deepcopy(Droppable_Tasks)
+
+                for j in Dropped[0]:
+                    if j.task in Droppable_Tasks:
+                        remain_bbn.remove(j.task)
+                print("The survived tasks", remain_bbn)
+                survive.append(len(remain_bbn))
+
+                print('\n', "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^", '\n')
+                print("The method proposed by Alan's paper")
+
+                Alan_Droppable_Tasks = copy.deepcopy(Droppable_Tasks)
+                Alan_Dropped = copy.deepcopy(Dropped)
+                remained = copy.deepcopy(Alan_Droppable_Tasks)
+                # print("Original tasks in the system for Alan's method", remained)
+
+                Alan_app_drop = []
+
+                for i in Alan_Dropped[0]:
+                    for j in Alan_App:
+                        if i.task in j.taskset and i.task in remained:
+                            # print(j.taskset)
+                            Alan_app_drop.append(j.app_name)
+                            for dp in j.taskset:
+                                remained.remove(dp)
+                            break
+                print("The application drop order", Alan_app_drop)
+
+                marginal_App = []
+                check = []
+                for i in drop_app:
+                    temp_app = i[-1]
+                    if i[-1] not in check:
+                        temp_EU = App_EU[App_drop_order.index(temp_app)]
+                        marginal_App.append(temp_EU)
+                        for j in i:
+                            check.append(j)
+                    else:
+                        marginal_App.append(marginal_App[-1])
+
+                print("the overrun level", milestone)
+                print("Dropped Apps of corresponding overrun", drop_app)
+                print("probability:", marginal_App)
+                print("The number of tasks, which are survived", len(remained))
+                print("The finally remained tasks with Alan's method", remained)
+                Alan_remain.append(len(remained))
+                if milestone:
+                    Alan_tolerant_overrun.append(milestone[-1])
+                    Alan_final_EU.append(marginal_App[-1])
+                else:
+                    Alan_tolerant_overrun.append(0)
+                    Alan_final_EU.append(0)
+
+                test_round -= 1
+                # else:
+                #     test_round -= 1
+
+                # name_list = milestone
+                # list1 = marginal_maintenance  # task level
+                # list2 = marginal_App  # app level
+                #
+                # total_width, n = 0.8, 2
+                # width = total_width / n
+                # x = list(range(len(list1)))
+                # # print(x)
+                # # print(marginal_maintenance)
+                # # print(marginal_App)
+                # plt.bar(x, marginal_maintenance, width=width, label='BBN', tick_label=name_list)
+                # for i in range(len(x)):
+                #     x[i] = x[i] + width
+                # plt.bar(x, marginal_App, width=width, label='Alan', tick_label=name_list)
+                # plt.legend()
+                # plt.show()
+
+                temp_ED = 0
+                for i in range(len(marginal_maintenance)):
+                    temp_ED += (marginal_maintenance[i] - marginal_App[i])
+
+                if marginal_maintenance:
+                    EU_difference.append(temp_ED/len(marginal_maintenance))
+                else:
+                    EU_difference.append(0)
 
         O_system_uti.append(np.mean(system_uti))
-        O_survive.append(np.mean(survive))
-        O_Alan_remain.append(np.mean(Alan_remain))
+        O_survive.append(sum(survive))
+        O_Alan_remain.append(sum(Alan_remain))
         O_tolerant_overrun.append(np.mean(tolerant_overrun))
         O_final_EU.append(np.mean(final_EU))
         O_Alan_tolerant_overrun.append(np.mean(Alan_tolerant_overrun))
@@ -1297,8 +1366,8 @@ if __name__ == "__main__":
         O_Droppable_Tasks_set.append(sum(Droppable_Tasks_set))
 
     print("=============== Output comparison ================")
-    print("The survived tasks based on BBN method", np.mean(O_survive))
-    print("The survived tasks based on Alan's method", np.mean(O_Alan_remain))
+    print("The survived tasks based on BBN method", sum(O_survive))
+    print("The survived tasks based on Alan's method", sum(O_Alan_remain))
     plt.subplot(1, 2, 1)
     name_list = [round(i, 1) for i in O_tolerant_overrun]
     # name_list = O_tolerant_overrun
@@ -1315,8 +1384,8 @@ if __name__ == "__main__":
     for i in range(len(x)):
         x[i] = x[i] + width
     plt.bar(x, list2, width=width, label='Alan', tick_label=name_list)
-    plt.xlabel('Tolerable overrun of HI task  ')
-    plt.ylabel('EU value')
+    plt.xlabel('Tolerable average overrun of HI task  ')
+    plt.ylabel('Average EU value')
     plt.legend()
     # plt.show()
 
@@ -1329,16 +1398,16 @@ if __name__ == "__main__":
     #     BBN_num.append(O_survive[i])
     #     Alan_num.append(O_Alan_remain[i])
 
-    total_width, n = 0.8, 2
+    total_width, n = 0.8, 3
     width = total_width / n
     x = list(range(len(BBN_num)))
     # print(x)
     # print(marginal_maintenance)
     # print(marginal_App)
 
-    # plt.bar(x, O_Droppable_Tasks_set, width=width, label='Droppable Tasks', tick_label=name_list1)
-    # for i in range(len(x)):
-    #     x[i] = x[i] + width
+    plt.bar(x, O_Droppable_Tasks_set, width=width, label='Droppable Tasks', tick_label=name_list1)
+    for i in range(len(x)):
+        x[i] = x[i] + width
     plt.bar(x, BBN_num, width=width, label='BBN_survived', tick_label=name_list1)
 
     for i in range(len(x)):
@@ -1347,5 +1416,8 @@ if __name__ == "__main__":
     plt.xlabel('The utilization of the system')
     plt.ylabel('The number of survived tasks')
     plt.legend()
+    plt.show()
+
+    plt.plot(EU_difference)
     plt.show()
 

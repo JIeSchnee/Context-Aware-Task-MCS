@@ -96,8 +96,10 @@ def load_task(task_idx, dag_base_folder="/home/jiezou/Documents/Context_aware MC
     V_array.sort()
     W = sum(C_array)
 
+    C = G.nodes[max_key]['C']
+    print(C)
     # >> end of load DAG task >>
-    return G_dict, V_array, C_dict, C_array, T, W
+    return G_dict, V_array, C_dict, C_array, T, W, C
 
 
 def dictionary_definition():
@@ -121,17 +123,28 @@ def parameters_initialisation(dict, dag_base_folder):
     Execution_times = {}
     app_dependency_node = []
     period = {}
-
+    uti = 0
     for app in range(3):
         print("==========================")
-        G, V, C, _, T, W = load_task(task_idx=app,
+        G, V, C, _, T, W, sink = load_task(task_idx=app,
                                      dag_base_folder=dag_base_folder)
         # print("G: ", G)
         # print("V: ", V)
         # print("C: ", C)
         # print("W: ", W)
+        # print("ET", T)
+        sink_search = []
+        for i in C.keys():
+            sink_search.append(i)
 
-        print("ET", T)
+        print(sink_search[-1])
+        C[sink_search[-1]] = sink
+
+        for i in C.keys():
+            # print(C[i])
+            uti += C[i]/T
+
+        print("Uti check", uti)
 
         edges = []
         for i in range(len(V)):
@@ -1052,7 +1065,7 @@ def PurTask_Degradation_order(Tasks_original, model_original, Appset_original, H
 
 if __name__ == "__main__":
 
-    path = "/home/jiezou/Documents/Context_aware MCS/dag-gen-rnd-master/data/data-multi-m4-u0.3/"
+    path = "/home/jiezou/Documents/Context_aware MCS/dag-gen-rnd-master/data/data-multi-m4-u1.0/"
     O_system_uti = []
     O_survive = []
     O_Alan_remain = []
@@ -1061,12 +1074,14 @@ if __name__ == "__main__":
     O_Alan_tolerant_overrun = []
     O_Alan_final_EU = []
     O_Droppable_Tasks_set = []
-    EU_difference = []
+    EU_difference_holistic = []
+    D_size_holistic = []
+    graph_size = []
+
     for file in os.listdir(path):
         print("####### file number", file)
 
         test_round = 10
-        target_Uti = 0.3
         system_uti = []
         survive = []
         Alan_remain = []
@@ -1075,6 +1090,8 @@ if __name__ == "__main__":
         Alan_tolerant_overrun = []
         Alan_final_EU = []
         Droppable_Tasks_set = []
+        EU_difference = []
+        D_size = []
 
         while test_round:
             print("%%%%%%%%%%  NEW TEST ROUND %%%%%%%%%%%%%%%,", test_round)
@@ -1096,7 +1113,7 @@ if __name__ == "__main__":
                                                                                        period)
 
             # table_print(Tasks_original)
-
+            size = len(Tasks_original)
             mgr_model = copy.deepcopy(model_original)
             mgr_Tasks = copy.deepcopy(Tasks_original)
 
@@ -1115,8 +1132,11 @@ if __name__ == "__main__":
                 uti += float(i.execution_time_LO) / i.period
 
             print("System Utilisation", uti)
+
+
+
             system_uti.append(uti)
-            bias = abs(target_Uti - uti)
+
 
             # if bias <= 0.1:
 
@@ -1144,6 +1164,7 @@ if __name__ == "__main__":
             if order_check:
                 print("+++++++++++++++++ Output the table of tasks with Importance definition ++++++++++++++++++++", '\n')
                 Droppable_Tasks_set.append(len(Droppable_Tasks))
+                D_size.append(len(Droppable_Tasks))
                 print(Droppable_Tasks_set)
                 importance = []
                 for i in Task_drop_order:
@@ -1356,6 +1377,10 @@ if __name__ == "__main__":
                 else:
                     EU_difference.append(0)
 
+        # print("uiyoip", EU_difference)
+        graph_size.append(size)
+        D_size_holistic.append(D_size)
+        EU_difference_holistic.append(EU_difference)
         O_system_uti.append(np.mean(system_uti))
         O_survive.append(sum(survive))
         O_Alan_remain.append(sum(Alan_remain))
@@ -1384,14 +1409,17 @@ if __name__ == "__main__":
     for i in range(len(x)):
         x[i] = x[i] + width
     plt.bar(x, list2, width=width, label='Alan', tick_label=name_list)
-    plt.xlabel('Tolerable average overrun of HI task  ')
-    plt.ylabel('Average EU value')
+    plt.xlabel('The average of tolerable overrun (upper bound) of HI task')
+    plt.ylabel('The average maintained EU value')
     plt.legend()
     # plt.show()
 
     plt.subplot(1, 2, 2)
-    name_list1 = [round(i, 1) for i in O_system_uti]
-    # name_list1 = O_system_uti
+    # name_list1 = [round(i, 1) for i in O_system_uti]
+    name_list1 = graph_size
+    # for i in range(len(D_size_holistic)):
+    #     name_list1.append(np.mean(D_size_holistic[i]))
+
     BBN_num = O_survive
     Alan_num = O_Alan_remain
     # for i in range(len(O_survive)):
@@ -1413,11 +1441,37 @@ if __name__ == "__main__":
     for i in range(len(x)):
         x[i] = x[i] + width
     plt.bar(x, Alan_num, width=width, label='Alan_survived', tick_label=name_list1)
-    plt.xlabel('The utilization of the system')
+    plt.xlabel('The graph size')
     plt.ylabel('The number of survived tasks')
     plt.legend()
+    plt.suptitle("System with Uti 1.0 with")
     plt.show()
 
-    plt.plot(EU_difference)
+    print("EU_deviation")
+    for i in EU_difference_holistic:
+        print(i)
+
+
+
+    print("droppable size")
+
+    name_list3 = []
+    EU_mean = []
+    for i in range(len(D_size_holistic)):
+        name_list3.append(np.mean(D_size_holistic[i]))
+        EU_mean.append(np.mean(EU_difference_holistic[i]))
+
+    x = range(len(name_list3))
+    plt.bar(x, EU_mean, tick_label= name_list3)
+    plt.xlabel('The droppable task size')
+    plt.ylabel('The difference of EU value')
+    plt.title("System with Uti 1.0 with")
     plt.show()
 
+    fig, axes = plt.subplots()
+    plt.boxplot(EU_difference_holistic, meanline=True)
+    plt.setp(axes, xticklabels= name_list3)
+    plt.xlabel('The droppable task size')
+    plt.ylabel('The average difference of EU value')
+    plt.title("System with Uti 1.0 with")
+    plt.show()

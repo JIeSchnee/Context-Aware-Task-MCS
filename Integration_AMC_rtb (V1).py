@@ -1070,7 +1070,7 @@ def PurTask_Degradation_order(Tasks_original, model_original, Appset_original, H
 
 if __name__ == "__main__":
 
-    path = "/home/jiezou/Documents/Context_aware MCS/dag-gen-rnd-master/data/data-multi-m4-u0.3/"
+    path = "/home/jiezou/Documents/Context_aware MCS/dag-gen-rnd-master/data/data-multi-m4-u0.9/"
     O_system_uti = []
     O_survive = []
     O_Alan_remain = []
@@ -1086,12 +1086,11 @@ if __name__ == "__main__":
     O_Dropped_diff = []
     O_Dropped_diff_raw = []
 
-    test_file = []
 
     for file in os.listdir(path):
         print("####### file number", file)
 
-        test_round = 1
+        test_round = 10
         system_uti = []
         survive = []
         Alan_remain = []
@@ -1103,6 +1102,7 @@ if __name__ == "__main__":
         EU_difference = []
         D_size = []
         Dropped_diff = []
+        test_file = []
 
         while test_round:
             print("%%%%%%%%%%  NEW TEST ROUND %%%%%%%%%%%%%%%,", test_round)
@@ -1171,14 +1171,14 @@ if __name__ == "__main__":
                     temp_V = i
                 else:
                     order_check = 0
-                    print("KKKKFADGKGKI", order_check)
+                    print("CPTs regeneration", order_check)
                     break
 
             if order_check:
                 print("+++++++++++++++++ Output the table of tasks with Importance definition ++++++++++++++++++++", '\n')
                 Droppable_Tasks_set.append(len(Droppable_Tasks))
                 D_size.append(len(Droppable_Tasks))
-                print(Droppable_Tasks_set)
+                # print(Droppable_Tasks_set)
                 importance = []
                 for i in Task_drop_order:
                     for j in i:
@@ -1422,7 +1422,7 @@ if __name__ == "__main__":
 
                     print("The remained tasks at each dropping point", remain_bbn_check, '\n', remain_Alan_check)
                     for i in range(len(remain_bbn_check)):
-                        Dropped_diff.append((remain_bbn_check[i] - remain_Alan_check[i]))
+                        Dropped_diff.append(((remain_bbn_check[i] - remain_Alan_check[i])/len(Alan_Droppable_Tasks)) * 100)
                         # if remain_Alan_check[i]:
                         #     Dropped_diff.append(((remain_bbn_check[i] - remain_Alan_check[i])/remain_Alan_check[i]) * 100)
                         # else:
@@ -1433,10 +1433,18 @@ if __name__ == "__main__":
                     test_round = 0
                     test_file.append(555)
 
-        if schedulability_mark:
-            file_name.append(file)
-        else:
+        for i in test_file:
+            if i != 555:
+                file_name.append(i)
+                break
+
+        count_555 = 0
+        for i in test_file:
+            if i == 555:
+                count_555 +=1
+        if count_555 == len(test_file):
             file_name.append(555)
+
         # print("uiyoip", Dropped_diff)
         O_Dropped_diff.append(np.mean(Dropped_diff))
         O_Dropped_diff_raw.append(Dropped_diff)
@@ -1464,15 +1472,23 @@ if __name__ == "__main__":
     width = total_width / n
     x = list(range(len(BBN_num)))
 
-    plt.bar(x, O_Dropped_diff, width=width, label='BBN_survived', tick_label=file_name)
+    plt.bar(x, O_Dropped_diff, width=width, tick_label=file_name)
 
     # for i in range(len(x)):
     #     x[i] = x[i] + width
     # plt.bar(x, Alan_num, width=width, label='Alan_survived', tick_label=file_name)
-    plt.xlabel('The graph size')
-    plt.ylabel('The number of survived tasks')
+    plt.xlabel('The file name')
+    plt.ylabel('The difference of average proportion of survived tasks')
     plt.legend()
-    plt.suptitle("System with Uti 1.0 with")
+    # plt.suptitle("System with Uti 1.0 with")
+    plt.show()
+
+    fig1, axes = plt.subplots()
+    plt.boxplot(O_Dropped_diff_raw, meanline=True)
+    plt.setp(axes, xticklabels=file_name)
+    plt.xlabel('The file name')
+    plt.ylabel('The distribution of proportion difference of survived tasks')
+    # plt.title("System with Uti 1.0 with")
     plt.show()
 
     print("EU_deviation")
@@ -1487,25 +1503,17 @@ if __name__ == "__main__":
 
     x = range(len(name_list3))
     plt.bar(x, EU_mean, tick_label= file_name)
-    plt.xlabel('The droppable task size')
-    plt.ylabel('The difference of EU value')
-    plt.title("System with Uti 1.0 with")
+    plt.xlabel('The file name')
+    plt.ylabel('The average difference of EU value')
+    # plt.title("System with Uti 1.0 with")
     plt.show()
 
     fig, axes = plt.subplots()
     plt.boxplot(EU_difference_holistic, meanline=True)
     plt.setp(axes, xticklabels= file_name)
-    plt.xlabel('The droppable task size')
-    plt.ylabel('The average difference of EU value')
-    plt.title("System with Uti 1.0 with")
+    plt.xlabel('The file name')
+    plt.ylabel('The distribution of EU value difference')
+    # plt.title("System with Uti 1.0 with")
     plt.show()
 
-    fig1, axes = plt.subplots()
-    plt.boxplot(O_Dropped_diff_raw, meanline=True)
-    plt.setp(axes, xticklabels=file_name)
-    plt.xlabel('The droppable task size')
-    plt.ylabel('The average difference of EU value')
-    plt.title("System with Uti 1.0 with")
-    plt.show()
 
-    print(test_file)

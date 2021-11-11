@@ -5,7 +5,7 @@ import sys
 from random import choice
 import operator
 from itertools import chain
-
+import pickle
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
@@ -127,7 +127,7 @@ def parameters_initialisation(dict, dag_base_folder):
     for app in range(3):
         print("==========================")
         G, V, C, _, T, W, sink = load_task(task_idx=app,
-                                     dag_base_folder=dag_base_folder)
+                                           dag_base_folder=dag_base_folder)
         # print("G: ", G)
         # print("V: ", V)
         # print("C: ", C)
@@ -143,7 +143,7 @@ def parameters_initialisation(dict, dag_base_folder):
 
         for i in C.keys():
             # print(C[i])
-            uti += C[i]/T
+            uti += C[i] / T
 
         print("Uti check", uti)
 
@@ -1070,7 +1070,7 @@ def PurTask_Degradation_order(Tasks_original, model_original, Appset_original, H
 
 if __name__ == "__main__":
 
-    path = "/home/jiezou/Documents/Context_aware MCS/dag-gen-rnd-master/data/data-multi-m4-u0.9/"
+    path = "/home/jiezou/Documents/Context_aware MCS/dag-gen-rnd-master/data/data-multi-m4-u0.7/"
     O_system_uti = []
     O_survive = []
     O_Alan_remain = []
@@ -1086,11 +1086,10 @@ if __name__ == "__main__":
     O_Dropped_diff = []
     O_Dropped_diff_raw = []
 
-
     for file in os.listdir(path):
         print("####### file number", file)
 
-        test_round = 10
+        test_round = 1
         system_uti = []
         survive = []
         Alan_remain = []
@@ -1120,8 +1119,10 @@ if __name__ == "__main__":
             network_edges, network_tasks, Appset, HI_group, Execution_times, period = parameters_initialisation(dict,
                                                                                                                 dag_base_folder)
             values = value_generation(network_tasks)
-            Tasks_original, model_original, Appset_original, HI_group = initialisation(network_edges, network_tasks, Appset,
-                                                                                       HI_group, values, Execution_times,
+            Tasks_original, model_original, Appset_original, HI_group = initialisation(network_edges, network_tasks,
+                                                                                       Appset,
+                                                                                       HI_group, values,
+                                                                                       Execution_times,
                                                                                        period)
 
             # table_print(Tasks_original)
@@ -1139,17 +1140,13 @@ if __name__ == "__main__":
             print("============================================")
             print("Droppable tasks:", Droppable_Tasks)
 
-
             uti = 0
             for i in Tasks_original:
                 uti += float(i.execution_time_LO) / i.period
 
             print("System Utilisation", uti)
 
-
-
             system_uti.append(uti)
-
 
             # if bias <= 0.1:
 
@@ -1175,7 +1172,8 @@ if __name__ == "__main__":
                     break
 
             if order_check:
-                print("+++++++++++++++++ Output the table of tasks with Importance definition ++++++++++++++++++++", '\n')
+                print("+++++++++++++++++ Output the table of tasks with Importance definition ++++++++++++++++++++",
+                      '\n')
                 Droppable_Tasks_set.append(len(Droppable_Tasks))
                 D_size.append(len(Droppable_Tasks))
                 # print(Droppable_Tasks_set)
@@ -1197,7 +1195,7 @@ if __name__ == "__main__":
                 print('\n', "######### Priority definition ##########", '\n')
 
                 with HiddenPrints():
-                    Tasks_PR_OPA_IP, schedulability_mark = Importance_OPA(Tasks_original) # sorted by importance
+                    Tasks_PR_OPA_IP, schedulability_mark = Importance_OPA(Tasks_original)  # sorted by importance
                     # Tasks_PR_OPA_IP = Standard_OPA(Tasks_original) # standard method without importance emphasizing
                 table_print(Tasks_PR_OPA_IP)
                 Tasks_IP_Alan = copy.deepcopy(Tasks_PR_OPA_IP)
@@ -1355,8 +1353,6 @@ if __name__ == "__main__":
                                             S.append(tt)
                         remain_Alan_check.append(temp_alan)
 
-
-
                     for i in Alan_Dropped[0]:
                         for j in Alan_App:
                             if i.task in j.taskset and i.task in remained:
@@ -1413,16 +1409,17 @@ if __name__ == "__main__":
 
                     temp_ED = 0
                     for i in range(len(marginal_maintenance)):
-                        temp_ED += ((marginal_maintenance[i] - marginal_App[i])/marginal_App[i]) * 100
+                        temp_ED += ((marginal_maintenance[i] - marginal_App[i]) / marginal_App[i]) * 100
 
                     if marginal_maintenance:
-                        EU_difference.append(temp_ED/len(marginal_maintenance))
+                        EU_difference.append(temp_ED / len(marginal_maintenance))
                     else:
                         EU_difference.append(0)
 
                     print("The remained tasks at each dropping point", remain_bbn_check, '\n', remain_Alan_check)
                     for i in range(len(remain_bbn_check)):
-                        Dropped_diff.append(((remain_bbn_check[i] - remain_Alan_check[i])/len(Alan_Droppable_Tasks)) * 100)
+                        Dropped_diff.append(
+                            ((remain_bbn_check[i] - remain_Alan_check[i]) / len(Alan_Droppable_Tasks)) * 100)
                         # if remain_Alan_check[i]:
                         #     Dropped_diff.append(((remain_bbn_check[i] - remain_Alan_check[i])/remain_Alan_check[i]) * 100)
                         # else:
@@ -1441,7 +1438,7 @@ if __name__ == "__main__":
         count_555 = 0
         for i in test_file:
             if i == 555:
-                count_555 +=1
+                count_555 += 1
         if count_555 == len(test_file):
             file_name.append(555)
 
@@ -1479,7 +1476,7 @@ if __name__ == "__main__":
     # plt.bar(x, Alan_num, width=width, label='Alan_survived', tick_label=file_name)
     plt.xlabel('The file name')
     plt.ylabel('The difference of average proportion of survived tasks')
-    plt.legend()
+    # plt.legend()
     # plt.suptitle("System with Uti 1.0 with")
     plt.show()
 
@@ -1493,6 +1490,9 @@ if __name__ == "__main__":
 
     print("EU_deviation")
     for i in EU_difference_holistic:
+        for j in range(len(i)):
+            if i[j] is None:
+                i[j] = 0
         print(i)
 
     name_list3 = []
@@ -1502,7 +1502,7 @@ if __name__ == "__main__":
         EU_mean.append(np.mean(EU_difference_holistic[i]))
 
     x = range(len(name_list3))
-    plt.bar(x, EU_mean, tick_label= file_name)
+    plt.bar(x, EU_mean, tick_label=file_name)
     plt.xlabel('The file name')
     plt.ylabel('The average difference of EU value')
     # plt.title("System with Uti 1.0 with")
@@ -1510,10 +1510,19 @@ if __name__ == "__main__":
 
     fig, axes = plt.subplots()
     plt.boxplot(EU_difference_holistic, meanline=True)
-    plt.setp(axes, xticklabels= file_name)
+    plt.setp(axes, xticklabels=file_name)
     plt.xlabel('The file name')
     plt.ylabel('The distribution of EU value difference')
     # plt.title("System with Uti 1.0 with")
     plt.show()
 
-
+    with open('/home/jiezou/Documents/Context_aware MCS/result/file_name.pickle', 'wb') as handle:
+        pickle.dump(file_name, handle, protocol=2)
+    with open('/home/jiezou/Documents/Context_aware MCS/result/O_Dropped_diff.pickle', 'wb') as handle:
+        pickle.dump(O_Dropped_diff, handle, protocol=2)
+    with open('/home/jiezou/Documents/Context_aware MCS/result/O_Dropped_diff_raw.pickle', 'wb') as handle:
+        pickle.dump(O_Dropped_diff_raw, handle, protocol=2)
+    with open('/home/jiezou/Documents/Context_aware MCS/result/EU_mean.pickle', 'wb') as handle:
+        pickle.dump(EU_mean, handle, protocol=2)
+    with open('/home/jiezou/Documents/Context_aware MCS/result/EU_difference_holistic.pickle', 'wb') as handle:
+        pickle.dump(EU_difference_holistic, handle, protocol=2)

@@ -48,18 +48,19 @@ for i in EU_difference_holistic:
     same_EU.append(len(i) - count)
 
 # print(better_EU, same_EU)
-
+plt.suptitle(" Systems with Utilisation 0.9", fontsize=20,  y=0.95, weight="bold")
+plt.subplot(231)
 x = np.arange(1, len(EU_difference_holistic)+1, 1)
 plt.bar(x, better_EU, label='Improved', tick_label=x, color= 'cadetblue')
 plt.bar(x, same_EU, bottom=better_EU, label='Same', color= 'peru')
-plt.legend(loc='best', prop={'size': 26})
+plt.legend(loc='best', prop={'size': 11})
 plt.ylim([0, 10])
 plt.ylim([-1, 24])
 plt.tick_params(labelsize=14)
-plt.xlabel("The graph number", fontsize=26)
-plt.ylabel("The proportion (%)", fontsize=26)
-plt.title("The proportion of system with higher EU value", fontsize=26, pad=24)
-plt.show()
+plt.xlabel("The graph number", fontsize=14)
+plt.ylabel("The proportion (%)", fontsize=14)
+plt.title("The proportion of system with higher EU value", fontsize=14, pad=10)
+# plt.show()
 for i in range(len(EU_difference_holistic)):
     for j in range(len(EU_difference_holistic[i])):
         if np.isinf(EU_difference_holistic[i][j]):
@@ -82,23 +83,24 @@ for i in EU_difference_holistic:
 
 # print(EU_mean)
 
-fig1, axes = plt.subplots()
+plt.subplot(232)
 plt.boxplot(EU_difference_holistic, medianprops=None, showmeans=True, meanline=True, showfliers=False)
 # plt.setp(axes, xticklabels=file_name)
 plt.tick_params(labelsize=14)
-plt.xlabel("The graph number", fontsize=26)
-plt.ylabel("The distribution of EU value difference (%)", fontsize=26)
-plt.title("The distribution of EU value difference during degradation", fontsize=26, pad=24)
-plt.show()
+plt.xlabel("The graph number", fontsize=14)
+plt.ylabel("The distribution of EU value difference (%)", fontsize=14)
+plt.title("The distribution of EU value difference of improved system", fontsize=14, pad=10)
+# plt.show()
 
+plt.subplot(233)
 plt.bar(x, EU_mean, tick_label=x, color= 'cadetblue')
 # plt.ylim([0, 10])
 # plt.ylim([-1, 24])
 plt.tick_params(labelsize=14)
-plt.xlabel("The graph number", fontsize=26)
-plt.ylabel("The average of EU value difference (%)", fontsize=26)
-plt.title("The average of EU value difference during degradation", fontsize=26, pad=24)
-plt.show()
+plt.xlabel("The graph number", fontsize=14)
+plt.ylabel("The average of EU value difference (%)", fontsize=14)
+plt.title("The average of EU value difference of improved system", fontsize=14, pad=10)
+# plt.show()
 
 
 Pro_diff = []
@@ -126,41 +128,43 @@ for i in Pro_diff:
 # print(better, same)
 
 file_name.remove(555)
+
+plt.subplot(234)
 x = np.arange(1, len(Pro_diff)+1, 1)
 plt.bar(x, better, label='Improved', tick_label=x, color= 'grey')
 plt.bar(x, same, bottom=better, label='Same', color= 'rosybrown')
-plt.legend(loc='best', prop={'size': 26})
+plt.legend(loc='best', prop={'size': 11})
 plt.ylim([0, 10])
 plt.ylim([-1, 24])
 plt.tick_params(labelsize=14)
-plt.xlabel("The graph number", fontsize=26)
-plt.ylabel("The proportion (%)", fontsize=26)
-plt.title("The proportion of system with improved survivability", fontsize=26, pad=24)
-plt.show()
+plt.xlabel("The graph number", fontsize=14)
+plt.ylabel("The proportion (%)", fontsize=14)
+plt.title("The proportion of system with improved survivability", fontsize=14, pad=10)
+# plt.show()
 
 for i in range(len(Pro_diff)):
     Pro_diff[i] = list(filter(lambda x: x != 0, Pro_diff[i]))
 
 # print(Pro_diff)
-fig1, axes = plt.subplots()
-plt.boxplot(Pro_diff, medianprops=None, showmeans=False, meanline=True, showfliers=False)
+plt.subplot(235)
+plt.boxplot(Pro_diff, medianprops=None, showmeans=True, meanline=True, showfliers=False)
 # plt.setp(axes, xticklabels=file_name)
 plt.tick_params(labelsize=14)
-plt.xlabel("The graph number", fontsize=26)
-plt.ylabel("The distribution of survived percentage difference (%)", fontsize=26)
-plt.title("The distribution of survived percentage difference during degradation", fontsize=26, pad=24)
-plt.show()
+plt.xlabel("The graph number", fontsize=14)
+plt.ylabel("The percentage difference (%)", fontsize=14)
+plt.title("The distribution of survived percentage difference of improved system", fontsize=14, pad=10)
+# plt.show()
 
 Pro_mean = []
 for i in Pro_diff:
     Pro_mean.append(np.mean(i))
 # print(Pro_mean)
-
+plt.subplot(236)
 plt.bar(x, Pro_mean, tick_label=x, color= 'grey')
 # plt.ylim([0, 10])
 # plt.ylim([-1, 24])
 plt.tick_params(labelsize=14)
-plt.xlabel("The graph number", fontsize=26)
-plt.ylabel("The average of survived percentage difference (%)", fontsize=26)
-plt.title("The average of survived percentage difference during degradation", fontsize=26, pad=24)
+plt.xlabel("The graph number", fontsize=14)
+plt.ylabel("The percentage difference (%)", fontsize=14)
+plt.title("The average of survived percentage difference of improved system", fontsize=14, pad=10)
 plt.show()

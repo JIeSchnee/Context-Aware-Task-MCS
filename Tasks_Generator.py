@@ -121,21 +121,25 @@ if __name__ == "__main__":
     print("Start Tasks Generation")
     print("--------------------------------")
 
-    task_number = 10  # varied from 4 to 60, the task of one task set
+    task_number = 15  # varied from 4 to 60, the task of one task set
     target_Uti = 0.5  # varied from 0.05 to 0.95
 
-    period_set = [10, 50, 100, 300, 600, 900]
+    period_set = [10, 50, 100, 300, 600, 900, 1800]
     period = []
     for i in range(task_number):
         period.append(random.choice(period_set))
     print("Generated Periods:", period)
 
-    execution_time = execution_time_Generator(task_number, period, target_Uti)
+    k = 1
+    while k:
+        execution_time = execution_time_Generator(task_number, period, target_Uti)
 
-    uti = []
-    for i in range(task_number):
-        uti.append(execution_time[i] / period[i])
-    actual_uti = sum(uti)
+        uti = []
+        for i in range(task_number):
+            uti.append(execution_time[i] / period[i])
+        actual_uti = sum(uti)
+        if actual_uti <= target_Uti:
+            k = 0
 
     print("Generated Execution Time:", execution_time)
     print("Actual Utilization:", actual_uti)
@@ -201,5 +205,6 @@ if __name__ == "__main__":
     print("-------------------- LO tasks in the system--------------------")
     table_print(LO_apps_tasks)
 
-    # step3:
+    # step3: Tasks dependency definition for LO_apps_tasks (currently assume stream group)
+
 

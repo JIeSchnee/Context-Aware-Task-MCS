@@ -3,4 +3,4 @@ This is the experiment code of the paper "Context-aware Graceful Degradation for
 
 ## Citation
 To cite this work:
-- Zou Jie, Xiaotian Dai, John McDermid. Context-aware Graceful Degradation for Mixed-Criticality Scheduling in Autonomous Systems. IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems 
+- Jie Zou, Xiaotian Dai, John McDermid. Context-aware Graceful Degradation for Mixed-Criticality Scheduling in Autonomous Systems. IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems 
